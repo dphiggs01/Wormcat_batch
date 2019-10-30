@@ -38,6 +38,9 @@ location of the Wormcat_batch.
 
 Execute: `python ./runwormcat_batch.py`
 
+After execution the Output Directory will contain all the Wormcat run data and a
+summary Excel spreadsheet.
+
 
 <img src="./Images/Example_Run.png"  height="283" width="700"/>
 
