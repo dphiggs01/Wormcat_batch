@@ -45,7 +45,16 @@ def get_output_dir():
                 print("Directory is not empty.")
         else:
             print("Directory does NOT exists.")
-
+            y_n = input("Would you like to create this directory? (y/n): ").lower().strip()
+            if y_n[:1] == "y":
+                try:
+                    # Create target Directory
+                    os.mkdir(output_dir)
+                    done = True
+                except FileExistsError:
+                    print("Failed to make directory ", output_dir, "!")
+            else:
+                print("No Directory Provided.")
     return output_dir
 
 def get_spreadsheet_to_process():
