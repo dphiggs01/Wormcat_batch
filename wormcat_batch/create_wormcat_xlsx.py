@@ -35,9 +35,9 @@ def significant(x):
     return ret_val
 
 
-def process_category_files(files_to_process, annotation_file, base_dir,out_data_xlsx):
+def process_category_files(files_to_process, annotation_file, out_data_xlsx):
     data = pd.read_csv(annotation_file)
-    writer = pd.ExcelWriter("{}/{}".format(base_dir,out_data_xlsx), engine='xlsxwriter')
+    writer = pd.ExcelWriter("{}".format(out_data_xlsx), engine='xlsxwriter')
 
     #files_to_process = pd.read_csv("{}/files_to_process.csv".format(base_dir))
 

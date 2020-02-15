@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='wormcat_batch',
-      version='0.9.5',
+      version='0.9.6',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',

@@ -96,7 +96,7 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file):
 
 
 # Process the Input spreadsheet
-def process_spreadshet(xsl_file_nm, output_dir, annotation_file):
+def process_spreadsheet(xsl_file_nm, output_dir, annotation_file):
     xl = pd.ExcelFile(xsl_file_nm)
 
     for sheet in xl.sheet_names:
@@ -122,12 +122,12 @@ def main():
     annotation_file, path = get_category_files(wormcat_path)
     output_dir = get_output_dir()
     xsl_file_nm = get_spreadsheet_to_process()
-    process_spreadshet(xsl_file_nm, output_dir, annotation_file)
+    process_spreadsheet(xsl_file_nm, output_dir, annotation_file)
     start=xsl_file_nm.rfind(os.path.sep)
     out_xsl_file_nm="{}{}Out_{}".format(output_dir,os.path.sep,xsl_file_nm[start+1:])
     annotation_file ="{}{}{}".format(path,os.path.sep,annotation_file)
     df_process = files_to_process(output_dir)
-    process_category_files(df_process,annotation_file,output_dir,out_xsl_file_nm)
+    process_category_files(df_process,annotation_file,out_xsl_file_nm)
 
 if __name__ == '__main__':
     main()
