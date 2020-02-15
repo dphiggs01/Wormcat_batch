@@ -1,12 +1,14 @@
 from subprocess import Popen, PIPE
 import sys
+import os
 import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 class ExecuteR(object):
-    worm_cat_function = ('./worm_cat.R',
+    wormcat_r = '{}/worm_cat.R'.format(os.path.dirname(__file__))
+    worm_cat_function = (wormcat_r,
                                '--file', 0,
                                '--title', 1,
                                '--out_dir', 2,
@@ -14,7 +16,9 @@ class ExecuteR(object):
                                '--annotation_file',4,
                                '--input_type', 5
                                )
-    wormcat_library_path = ('./is_wormcat_installed.R','--no-save',0, '--quiet',1)
+
+    is_wormcat_installed = '{}/is_wormcat_installed.R'.format(os.path.dirname(__file__))
+    wormcat_library_path = (is_wormcat_installed,'--no-save',0, '--quiet',1)
 
     def wormcat_library_path_fun(self):
         ret_val = self.run(self.wormcat_library_path,"")

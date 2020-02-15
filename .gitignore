@@ -129,5 +129,4 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-Rplots.pdf
 .DS_Store

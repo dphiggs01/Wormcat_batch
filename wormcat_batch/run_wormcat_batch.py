@@ -1,7 +1,7 @@
-from execute_r import ExecuteR
 import os
 import pandas as pd
-from create_wormcat_xlsx import process_category_files
+from wormcat_batch.execute_r import ExecuteR
+from wormcat_batch.create_wormcat_xlsx import process_category_files
 
 def get_wormcat_lib():
     executeR = ExecuteR()
@@ -10,7 +10,7 @@ def get_wormcat_lib():
         first_quote=path.find('"')
         last_quote=path.rfind('"')
         if last_quote == -1:
-            print("Wormcat is not installed or cannot be found")
+            print("Wormcat is not installed or cannot be found.")
             exit(-1)
         path = path[first_quote+1:last_quote]
 
@@ -116,7 +116,7 @@ def files_to_process(output_dir):
             df_process = df_process.append(row, ignore_index=True)
     return df_process
 
-if __name__ == '__main__':
+def main():
     print("Wormcat Batch")
     wormcat_path = get_wormcat_lib()
     annotation_file, path = get_category_files(wormcat_path)
@@ -128,3 +128,6 @@ if __name__ == '__main__':
     annotation_file ="{}{}{}".format(path,os.path.sep,annotation_file)
     df_process = files_to_process(output_dir)
     process_category_files(df_process,annotation_file,output_dir,out_xsl_file_nm)
+
+if __name__ == '__main__':
+    main()

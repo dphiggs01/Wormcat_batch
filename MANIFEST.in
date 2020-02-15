@@ -1,0 +1,3 @@
+include README.md
+include wormcat_batch/is_wormcat_installed.R
+include wormcat_batch/worm_cat.R
