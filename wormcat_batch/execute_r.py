@@ -1,24 +1,31 @@
 from subprocess import Popen, PIPE
 import sys
 import os
+import platform
 import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 class ExecuteR(object):
-    wormcat_r = '{}/worm_cat.R'.format(os.path.dirname(__file__))
-    worm_cat_function = (wormcat_r,
+    wormcat_r = '{}{}worm_cat.R'.format(os.path.dirname(__file__),os.path.sep)
+
+    worm_cat_function = [wormcat_r,
                                '--file', 0,
                                '--title', 1,
                                '--out_dir', 2,
                                '--rm_dir', 3,
                                '--annotation_file',4,
                                '--input_type', 5
-                               )
+                               ]
 
-    is_wormcat_installed = '{}/is_wormcat_installed.R'.format(os.path.dirname(__file__))
-    wormcat_library_path = (is_wormcat_installed,'--no-save',0, '--quiet',1)
+    is_wormcat_installed = '{}{}is_wormcat_installed.R'.format(os.path.dirname(__file__),os.path.sep)
+    wormcat_library_path = [is_wormcat_installed, '--no-save', 0, '--quiet', 1]
+
+    if platform.system() == 'Windows':
+        wormcat_library_path.insert(0,'rscript.exe')
+        worm_cat_function.insert(0,'rscript.exe')
+
 
     def wormcat_library_path_fun(self):
         ret_val = self.run(self.wormcat_library_path,"")
@@ -27,8 +34,6 @@ class ExecuteR(object):
     def worm_cat_fun(self, file_name, out_dir, title="rgs", annotation_file="straight", input_type="Sequence ID"):
         ret_val = self.run(self.worm_cat_function, file_name, title, out_dir, "False", annotation_file, input_type)
         return ret_val
-
-
 
     def run(self, arg_list, *args):
         try:

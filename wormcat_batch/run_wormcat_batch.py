@@ -89,10 +89,10 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file):
     executeR.worm_cat_fun(file_nm, dir_nm, title, annotation_file, input_type)
 
     # Clean up
-    mv_dir = file_nm.replace(".csv", "")
-    os.rename(mv_dir, "{}{}{}".format(output_dir,os.path.sep, mv_dir))
-    os.remove(file_nm)
-    os.remove("{}.zip".format(dir_nm))
+#    mv_dir = file_nm.replace(".csv", "")
+#    os.rename(mv_dir, "{}{}{}".format(output_dir,os.path.sep, mv_dir))
+#    os.remove(file_nm)
+#    os.remove("{}.zip".format(dir_nm))
 
 
 # Process the Input spreadsheet
@@ -129,5 +129,7 @@ def main():
     df_process = files_to_process(output_dir)
     process_category_files(df_process,annotation_file,out_xsl_file_nm)
 
+#C:\Users\dan\Downloads\Murphy_TS.xlsx
+#https://cran.r-project.org/bin/windows/Rtools/
 if __name__ == '__main__':
     main()
