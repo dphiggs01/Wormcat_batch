@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8c0f3850-aaa8-4ebb-b640-a2bfe7bca51b" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wormcat_batch/create_wormcat_xlsx.py" beforeDir="false" afterPath="$PROJECT_DIR$/wormcat_batch/create_wormcat_xlsx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wormcat_batch/run_wormcat_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/wormcat_batch/run_wormcat_batch.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
