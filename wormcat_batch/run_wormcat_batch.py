@@ -83,16 +83,17 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file):
     title = dir_nm.replace('_', ' ')
 
     gene_ids = gene_ids.to_frame(name=input_type)
-    gene_ids.to_csv(file_nm, encoding='utf-8', index=False)
+#    gene_ids.to_csv(file_nm, encoding='utf-8', index=False)
+    gene_ids.to_csv(file_nm, index=False)
 
     executeR = ExecuteR()
     executeR.worm_cat_fun(file_nm, dir_nm, title, annotation_file, input_type)
 
     # Clean up
-#    mv_dir = file_nm.replace(".csv", "")
-#    os.rename(mv_dir, "{}{}{}".format(output_dir,os.path.sep, mv_dir))
-#    os.remove(file_nm)
-#    os.remove("{}.zip".format(dir_nm))
+    mv_dir = file_nm.replace(".csv", "")
+    os.rename(mv_dir, "{}{}{}".format(output_dir,os.path.sep, mv_dir))
+    os.remove(file_nm)
+    os.remove("{}.zip".format(dir_nm))
 
 
 # Process the Input spreadsheet

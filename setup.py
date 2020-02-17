@@ -1,7 +1,7 @@
 from setuptools import setup
 #python setup.py sdist upload
 setup(name='wormcat_batch',
-      version='0.9.7',
+      version='0.9.9',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
