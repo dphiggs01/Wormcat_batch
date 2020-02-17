@@ -36,7 +36,8 @@ Underscores (_) and has an extension .xlsx, .xlt, .xls
 * The Sheet Names within the spreadsheet should ONLY be composed of
 Letters, Numbers and Underscores (_) other characters may cause the
 batch process to fail!
-* Each sheet requires a column name "gene ID" (This column name is case sensitive)
+* Each sheet requires a column name 'Sequence ID' or 'Wormbase ID'
+(This column name is case sensitive)
 
 ### To Run the Batch Process
 

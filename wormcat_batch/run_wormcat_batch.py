@@ -75,9 +75,9 @@ def get_spreadsheet_to_process():
     return speadsheet
 
 # Call Wormcat once for each sheet (tab) in the spreadsheet
-def call_wormcat(name, gene_ids, output_dir, annotation_file):
+def call_wormcat(name, gene_ids, output_dir, annotation_file, input_type):
 
-    input_type = 'Wormbase.ID'
+    #input_type = 'Wormbase.ID'
     file_nm = "{}.csv".format(name)
     dir_nm = "{}".format(name)
     title = dir_nm.replace('_', ' ')
@@ -99,12 +99,21 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file):
 # Process the Input spreadsheet
 def process_spreadsheet(xsl_file_nm, output_dir, annotation_file):
     xl = pd.ExcelFile(xsl_file_nm)
-
+    print("Processing Excel sheets")
     for sheet in xl.sheet_names:
         print(sheet)
         df = xl.parse(sheet)
-        gene_id_all = df['gene ID']
-        call_wormcat(sheet, gene_id_all, output_dir, annotation_file)
+        if 'Wormbase ID' in df.columns:
+            gene_id_all = df['Wormbase ID']
+            input_type = 'Wormbase.ID'
+        elif 'Sequence ID' in df.columns:
+            gene_id_all = df['Sequence ID']
+            input_type = 'Sequence.ID'
+        else:
+            print("ERROR: You must provide column names with either 'Sequence ID' or 'Wormbase ID")
+            exit(-1)
+
+        call_wormcat(sheet, gene_id_all, output_dir, annotation_file,input_type)
 
 
 def files_to_process(output_dir):
