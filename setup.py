@@ -1,7 +1,11 @@
+import os
 from setuptools import setup
-#python setup.py sdist upload
+#python setup.py sdist
+# twine check dist/*
+# twine upload --repository pypi dist/*
+
 setup(name='wormcat_batch',
-      version='1.0.0',
+      version='1.0.1',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
