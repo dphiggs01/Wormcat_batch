@@ -1,8 +1,14 @@
 import os
 import argparse
 import pandas as pd
+import shutil
+import zipfile
+from datetime import datetime
 from wormcat_batch.execute_r import ExecuteR
 from wormcat_batch.create_wormcat_xlsx import process_category_files
+
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
 def get_wormcat_lib():
     executeR = ExecuteR()
@@ -14,7 +20,7 @@ def get_wormcat_lib():
             print("Wormcat is not installed or cannot be found.")
             exit(-1)
         path = path[first_quote+1:last_quote]
-
+    print(f"wormcat_lib_path={path}")
     return path
 
 def get_category_files(path):
@@ -24,63 +30,16 @@ def get_category_files(path):
     for root, dirs, files in os.walk(path):
         for filename in files:
             category_files.append(filename)
-            #print("[{}]  {}".format(index, filename))
             index +=1
 
-    #i = int(input("Select File Name: "))
-    #category_file = category_files[i-1]
     return category_files, path
-
-def get_output_dir():
-    done = False
-    output_dir = ""
-    while not done:
-        output_dir = input("Please provide an Empty Output Directory (or enter to quit): ")
-        if output_dir == "":
-            exit()
-        exists = os.path.exists(output_dir)
-        if exists:
-            if not os.listdir(output_dir):
-                done = True
-            else:
-                print("Directory is not empty.")
-        else:
-            print("Directory does NOT exists.")
-            y_n = input("Would you like to create this directory? (y/n): ").lower().strip()
-            if y_n[:1] == "y":
-                try:
-                    # Create target Directory
-                    os.mkdir(output_dir)
-                    done = True
-                except FileExistsError:
-                    print("Failed to make directory ", output_dir, "!")
-            else:
-                print("No Directory Provided.")
-    return output_dir
-
-def get_spreadsheet_to_process():
-    done = False
-    speadsheet = ""
-    while not done:
-        speadsheet = input("Please provide the Full path to input spreadsheet (or enter to quit): ")
-        if speadsheet == "":
-            exit()
-        exists = os.path.isfile(speadsheet)
-        if exists:
-            if speadsheet[-3:] in ['lsx','xlt','xls']:
-                done = True
-            else:
-                print("Expected Excel file extension")
-        else:
-            print("Spreadsheet file does NOT exists.")
-    return speadsheet
 
 # Call Wormcat once for each sheet (tab) in the spreadsheet
 def call_wormcat(name, gene_ids, output_dir, annotation_file, input_type):
 
     #input_type = 'Wormbase.ID'
-    file_nm = "{}.csv".format(name)
-    dir_nm = "{}".format(name)
+    file_nm = f"{name}.csv"
+    dir_nm = f"{name}"
     title = dir_nm.replace('_', ' ')
 
     gene_ids = gene_ids.to_frame(name=input_type)
@@ -92,9 +51,10 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file, input_type):
 
     # Clean up
     mv_dir = file_nm.replace(".csv", "")
-    os.rename(mv_dir, "{}{}{}".format(output_dir,os.path.sep, mv_dir))
+    print(f"{mv_dir=}")
+    os.rename(mv_dir, f"{output_dir}{os.path.sep}{mv_dir}")
     os.remove(file_nm)
-    os.remove("{}.zip".format(dir_nm))
+    os.remove(f"{dir_nm}.zip")
 
 
 # Process the Input spreadsheet
@@ -114,15 +74,19 @@ def process_spreadsheet(xsl_file_nm, output_dir, annotation_file):
             print("ERROR: You must provide column names with either 'Sequence ID' or 'Wormbase ID")
             exit(-1)
 
-        call_wormcat(sheet, gene_id_all, output_dir, annotation_file,input_type)
+        call_wormcat(sheet, gene_id_all, output_dir, annotation_file, input_type)
 
+def move_file_to_output_directory(file_path,output_directory):
+    file_name = os.path.basename(file_path)
+    destination_path = os.path.join(output_directory, file_name)
+    shutil.copy2(file_path, destination_path)
 
 def files_to_process(output_dir):
     df_process = pd.DataFrame(columns=['sheet', 'category', 'file','label'])
     for dir_nm in os.listdir(output_dir):
         for cat_num in [1,2,3]:
-            rgs_fisher = "{}{}{}{}rgs_fisher_cat{}.csv".format(output_dir,os.path.sep,dir_nm,os.path.sep,cat_num)
-            cat_nm = "Cat{}".format(cat_num)
+            rgs_fisher = f"{output_dir}{os.path.sep}{dir_nm}{os.path.sep}rgs_fisher_cat{cat_num}.csv"
+            cat_nm = f"Cat{cat_num}"
             row = {'sheet': cat_nm, 'category': cat_num, 'file': rgs_fisher,'label': dir_nm}
             df_process = df_process.append(row, ignore_index=True)
     return df_process
@@ -136,50 +100,89 @@ def is_directory_empty(directory):
         return False  # Path exists but is not a directory
     return not os.listdir(directory)  # Return True if directory is empty, False otherwise
 
+
+def create_directory_with_backup(directory):
+    if os.path.exists(directory):
+        # Create backup directory name with a unique timestamp suffix
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        backup_dir = f"{directory}_{timestamp}.bk"
+
+        # Create a backup of the existing directory
+        shutil.copytree(directory, backup_dir)
+
+    # Create a new empty directory
+    os.makedirs(directory, exist_ok=True)
+
+def zip_directory(directory_path, zip_name):
+    parent_dir = os.path.dirname(directory_path)
+    zip_path = os.path.join(parent_dir, zip_name)
+    os.rename(directory_path, zip_path)
+
+    output_path = zip_path.rstrip(os.sep) + '.zip'  # Output zip file path
+    with zipfile.ZipFile(output_path, 'w', compression=zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk(zip_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                rel_path = os.path.relpath(file_path, zip_path)  # Get relative path
+                zipf.write(file_path, arcname=rel_path)
+    return output_path
+
 def main():
     print("Wormcat Batch")
     parser = argparse.ArgumentParser()
+    help_statement="wormcat_cli --input-excel <full_path_to_excel> --output-path <full_path_to_out_dir> --backup-output-path True --annotation-file-nm 'whole_genome_v2_nov-11-2021.csv' "
     parser.add_argument('-i', '--input-excel', help='Inputfile in Excel format')
     parser.add_argument('-o', '--output-path', help='Output path')
+    parser.add_argument('-b', '--backup-output-path', default=True, help='Backup or create outpath path if it does not exists')
     parser.add_argument('-a', '--annotation-file-nm', default='whole_genome_v2_nov-11-2021.csv', help='Annotation file name')
     args = parser.parse_args()
 
     if not args.input_excel:
-        print("wormcat_cli --input-excel <full_path_to_excel> --output-path <full_path_to_out_dir> --annotation-file-nm 'whole_genome_v2_nov-11-2021.csv' ")
+        print(help_statement)
         print("Inputfile in Excel format is missing.")
         return
 
-    if not is_directory_empty(args.output_path):
-        print("wormcat_cli --input-excel <full_path_to_excel> --output-path <full_path_to_out_dir> --annotation-file-nm 'whole_genome_v2_nov-11-2021.csv' ")
-        print("Output path is either non-existent, not a directory, or not empty.")
+    if not args.output_path:
+        print(help_statement)
+        print("Output path is missing")
         return
 
+    if args.backup_output_path:
+        create_directory_with_backup(args.output_path)
+    elif is_directory_empty(args.output_path):
+         print(help_statement)
+         print("Output path is not Empty.")
+         return
 
     wormcat_path = get_wormcat_lib()
     annotation_files, path = get_category_files(wormcat_path)
 
     if not args.annotation_file_nm or not args.annotation_file_nm in annotation_files:
-        print("wormcat_cli --input-excel <full_path_to_excel> --output-path <full_path_to_out_dir> --annotation-file-nm 'whole_genome_v2_nov-11-2021.csv' ")
+        print(help_statement)
         print("Missing or incorrect annotation-file-nm.")
         print("Available names: {}".format(annotation_files))
         return
-
+ 
     # Rest of your program logic goes here
     print("Input Excel:", args.input_excel)
     print("Output Path:", args.output_path)
+    print("Backup Path:", args.backup_output_path)
     print("Annotation File Nm:", args.annotation_file_nm)
 
-    #output_dir = get_output_dir()
-    #xsl_file_nm = get_spreadsheet_to_process()
-
     process_spreadsheet(args.input_excel, args.output_path, args.annotation_file_nm)
-    start=args.input_excel.rfind(os.path.sep)
-    out_xsl_file_nm="{}{}Out_{}".format(args.output_path, os.path.sep, args.input_excel[start+1:])
-    annotation_file ="{}{}{}".format(path, os.path.sep, args.annotation_file_nm)
-    df_process = files_to_process(args.output_path)
-    process_category_files(df_process,annotation_file,out_xsl_file_nm)
+    base_input_excel = os.path.basename(args.input_excel)
+    input_excel_no_ext = os.path.splitext(base_input_excel)[0]
 
-#C:\Users\dan\Downloads\Murphy_TS.xlsx
-#https://cran.r-project.org/bin/windows/Rtools/
+    out_xsl_file_nm=f"{args.output_path}{os.path.sep}Out_{base_input_excel}"
+
+    annotation_file =f"{path}{os.path.sep}{args.annotation_file_nm}"
+    df_process = files_to_process(args.output_path)
+    process_category_files(df_process, annotation_file, out_xsl_file_nm)
+    move_file_to_output_directory(args.input_excel, args.output_path)
+    
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_dir_nm = f"{input_excel_no_ext}_{timestamp}"
+    output_path = zip_directory(args.output_path, zip_dir_nm)
+
 if __name__ == '__main__':
     main()

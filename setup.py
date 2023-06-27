@@ -1,6 +1,7 @@
 import os
 from setuptools import setup
 #python setup.py sdist
+#pip install dist/wormcat_batch-1.0.1.tar.gz
 # twine check dist/*
 # twine upload --repository pypi dist/*
 

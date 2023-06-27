@@ -38,6 +38,7 @@ class ExecuteR(object):
     def run(self, arg_list, *args):
         try:
             processed_args = self.process_args(arg_list, *args)
+            #print(f"R function: {processed_args}")
             process = Popen(processed_args, stdout=PIPE)
             out, err = process.communicate()
             out = str(out, 'utf-8')

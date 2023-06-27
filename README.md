@@ -59,7 +59,23 @@ summary Excel spreadsheet.
 
 ### Sample Output
 
+
 <img src="./Images/Sample_Output.png"  height="415" width="800"/>
+
+### Local development /test hints
+
+#### Setup to test
+conda activate <appropriate_env>
+pip install .
+
+#### Test
+cd /Users/dan/delme #some working directory
+wormcat_cli --input-excel /Users/dan/Code/Python/Wormcat_batch/Example/Murphy_TS.xlsx --output-path ./output  
+
+#### Deploy
+python setup.py sdist
+twine check dist/*
+twine upload --repository pypi dist/*
 
 
 
