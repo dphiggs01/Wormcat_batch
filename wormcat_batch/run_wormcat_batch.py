@@ -51,7 +51,7 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file, input_type):
 
     # Clean up
     mv_dir = file_nm.replace(".csv", "")
-    print(f"{mv_dir=}")
+    print(f"{os.getcwd()=} {mv_dir=}")
     os.rename(mv_dir, f"{output_dir}{os.path.sep}{mv_dir}")
     os.remove(file_nm)
     os.remove(f"{dir_nm}.zip")
@@ -147,13 +147,6 @@ def main():
         print("Output path is missing")
         return
 
-    if args.backup_output_path:
-        create_directory_with_backup(args.output_path)
-    elif is_directory_empty(args.output_path):
-         print(help_statement)
-         print("Output path is not Empty.")
-         return
-
     wormcat_path = get_wormcat_lib()
     annotation_files, path = get_category_files(wormcat_path)
 
@@ -169,20 +162,34 @@ def main():
     print("Backup Path:", args.backup_output_path)
     print("Annotation File Nm:", args.annotation_file_nm)
 
-    process_spreadsheet(args.input_excel, args.output_path, args.annotation_file_nm)
+    # Do all processing in the temp directory
+    work_dir=f"{os.path.sep}tmp{os.path.sep}work"
+    if os.path.exists(work_dir):
+        shutil.rmtree(work_dir)
+    os.makedirs(work_dir)
+    os.chdir(work_dir)
+    print(f"{os.getcwd()=}")
+
+    # Add output to a temp_output director
+    temp_output_path= f".{os.path.sep}temp_output"
+    os.makedirs(temp_output_path, exist_ok=True)
+    print(f"{temp_output_path=}")
+
+    process_spreadsheet(args.input_excel, temp_output_path, args.annotation_file_nm)
     base_input_excel = os.path.basename(args.input_excel)
     input_excel_no_ext = os.path.splitext(base_input_excel)[0]
 
-    out_xsl_file_nm=f"{args.output_path}{os.path.sep}Out_{base_input_excel}"
+    out_xsl_file_nm=f"{temp_output_path}{os.path.sep}Out_{base_input_excel}"
 
     annotation_file =f"{path}{os.path.sep}{args.annotation_file_nm}"
-    df_process = files_to_process(args.output_path)
+    df_process = files_to_process(temp_output_path)
     process_category_files(df_process, annotation_file, out_xsl_file_nm)
-    move_file_to_output_directory(args.input_excel, args.output_path)
+    move_file_to_output_directory(args.input_excel, temp_output_path)
     
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     zip_dir_nm = f"{input_excel_no_ext}_{timestamp}"
-    output_path = zip_directory(args.output_path, zip_dir_nm)
+    output_zip = zip_directory(temp_output_path, zip_dir_nm)
+    shutil.copy(output_zip, args.output_path)
 
 if __name__ == '__main__':
     main()
