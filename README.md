@@ -74,9 +74,15 @@ wormcat_cli --input-excel /Users/dan/Code/Python/Wormcat_batch/Example/Murphy_TS
 
 #### Deploy
 conda deactivate # twine is installed in base env
+cd in project directory
+rm -rf ./dist
+rm -rf ./wormcat_batch.egg-info
 python setup.py sdist
 twine check dist/*
 twine upload --repository pypi dist/*
+git add .
+git commit -m "some comment"
+git push
 
 
 

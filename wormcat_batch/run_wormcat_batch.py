@@ -53,8 +53,11 @@ def call_wormcat(name, gene_ids, output_dir, annotation_file, input_type):
     mv_dir = file_nm.replace(".csv", "")
     print(f"{os.getcwd()=} {mv_dir=}")
     os.rename(mv_dir, f"{output_dir}{os.path.sep}{mv_dir}")
-    os.remove(file_nm)
-    os.remove(f"{dir_nm}.zip")
+    if os.path.exists(file_nm):
+        os.remove(file_nm)
+    if os.path.exists(f"{dir_nm}.zip"):
+        os.remove(f"{dir_nm}.zip")
+    
 
 
 # Process the Input spreadsheet
@@ -76,10 +79,10 @@ def process_spreadsheet(xsl_file_nm, output_dir, annotation_file):
 
         call_wormcat(sheet, gene_id_all, output_dir, annotation_file, input_type)
 
-def move_file_to_output_directory(file_path,output_directory):
+def move_file_to_output_directory(file_path, output_directory):
     file_name = os.path.basename(file_path)
     destination_path = os.path.join(output_directory, file_name)
-    shutil.copy2(file_path, destination_path)
+    shutil.move(file_path, destination_path)
 
 def files_to_process(output_dir):
     df_process = pd.DataFrame(columns=['sheet', 'category', 'file','label'])
@@ -91,22 +94,12 @@ def files_to_process(output_dir):
             df_process = df_process.append(row, ignore_index=True)
     return df_process
 
-def is_directory_empty(directory):
-    if not directory:
-        return False
-    if not os.path.exists(directory):
-        return False  # Directory does not exist
-    if not os.path.isdir(directory):
-        return False  # Path exists but is not a directory
-    return not os.listdir(directory)  # Return True if directory is empty, False otherwise
-
 
 def create_directory_with_backup(directory):
     if os.path.exists(directory):
         # Create backup directory name with a unique timestamp suffix
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         backup_dir = f"{directory}_{timestamp}.bk"
-
         # Create a backup of the existing directory
         shutil.copytree(directory, backup_dir)
 
@@ -161,19 +154,10 @@ def main():
     print("Output Path:", args.output_path)
     print("Backup Path:", args.backup_output_path)
     print("Annotation File Nm:", args.annotation_file_nm)
-
-    # Do all processing in the temp directory
-    work_dir=f"{os.path.sep}tmp{os.path.sep}work"
-    if os.path.exists(work_dir):
-        shutil.rmtree(work_dir)
-    os.makedirs(work_dir)
-    os.chdir(work_dir)
-    print(f"{os.getcwd()=}")
-
+    
     # Add output to a temp_output director
     temp_output_path= f".{os.path.sep}temp_output"
-    os.makedirs(temp_output_path, exist_ok=True)
-    print(f"{temp_output_path=}")
+    create_directory_with_backup(temp_output_path)
 
     process_spreadsheet(args.input_excel, temp_output_path, args.annotation_file_nm)
     base_input_excel = os.path.basename(args.input_excel)
@@ -189,7 +173,8 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     zip_dir_nm = f"{input_excel_no_ext}_{timestamp}"
     output_zip = zip_directory(temp_output_path, zip_dir_nm)
-    shutil.copy(output_zip, args.output_path)
+    create_directory_with_backup(args.output_path)
+    move_file_to_output_directory(output_zip, args.output_path)
 
 if __name__ == '__main__':
     main()

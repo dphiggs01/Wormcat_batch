@@ -6,7 +6,7 @@ from setuptools import setup
 # twine upload --repository pypi dist/*
 
 setup(name='wormcat_batch',
-      version='1.0.3',
+      version='1.0.5',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
