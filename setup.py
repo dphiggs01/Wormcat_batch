@@ -1,22 +1,23 @@
-import os
+import json
 from setuptools import setup
+
 #python setup.py sdist
 #pip install dist/wormcat_batch-1.0.1.tar.gz
 # twine check dist/*
 # twine upload --repository pypi dist/*
 
-setup(name='wormcat_batch',
-      version='1.0.5',
-      description='Batch processing for Wormcat data',
-      url='https://github.com/dphiggs01/Wormcat_batch',
-      author='Dan Higgins',
-      author_email='daniel.higgins@yahoo.com',
-      license='MIT',
+with open('setup.json', 'r') as file:
+    data = json.load(file)
 
-      packages=['wormcat_batch'],
-      install_requires=['pandas','xlrd','xlsxwriter'],
-      entry_points={
-          'console_scripts': ['wormcat_cli=wormcat_batch.run_wormcat_batch:main'],
-      },
-      include_package_data=True,
-      zip_safe=False)
+setup(name=data['name'],
+      version=data['version'],
+      description=data['description'],
+      url=data['url'],
+      author=data['author'],
+      author_email=data['author_email'],
+      license=data['license'],
+      packages=data['packages'],
+      install_requires=data['install_requires'],
+      entry_points=data['entry_points'],
+      include_package_data=data['include_package_data'],
+      zip_safe=data['zip_safe'])
