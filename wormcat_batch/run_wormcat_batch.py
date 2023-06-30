@@ -5,6 +5,7 @@ import pandas as pd
 import shutil
 import zipfile
 import json
+import importlib.metadata
 from datetime import datetime
 from wormcat_batch.execute_r import ExecuteR
 from wormcat_batch.create_wormcat_xlsx import process_category_files
@@ -165,9 +166,7 @@ def main():
     parser.add_argument('-b', '--backup-output-path', default=True, help='Backup or create outpath path if it does not exists')
     parser.add_argument('-a', '--annotation-file-nm', default='whole_genome_v2_nov-11-2021.csv', help='Annotation file name')
 
-    with open('setup.json', 'r') as file:
-            data = json.load(file)
-    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s v{data["version"]}')
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s v{importlib.metadata.version("wormcat_batch")}')
     args = parser.parse_args()
 
     if not args.input_excel:
