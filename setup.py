@@ -15,7 +15,7 @@ setup(name='wormcat_batch',
       license='MIT',
 
       packages=['wormcat_batch'],
-      install_requires=['pandas','xlrd','xlsxwriter'],
+      install_requires=['pandas','xlrd','xlsxwriter','openpyxl'],
       entry_points={
           'console_scripts': ['wormcat_cli=wormcat_batch.run_wormcat_batch:main'],
       },

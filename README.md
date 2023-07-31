@@ -73,6 +73,7 @@ cd /Users/dan/delme #some working directory
 wormcat_cli --input-excel /Users/dan/Code/Python/Wormcat_batch/Example/Murphy_TS.xlsx --output-path ./output  
 
 #### Deploy
+advance version='1.0.9' in setup.py
 conda deactivate # twine is installed in base env
 cd in project directory
 rm -rf ./dist

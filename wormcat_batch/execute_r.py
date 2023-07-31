@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 class ExecuteR(object):
-    wormcat_r = '{}{}worm_cat.R'.format(os.path.dirname(__file__),os.path.sep)
+    wormcat_r = f'{os.path.dirname(__file__)}{os.path.sep}worm_cat.R'
 
     worm_cat_function = [wormcat_r,
                                '--file', 0,
@@ -16,10 +16,11 @@ class ExecuteR(object):
                                '--out_dir', 2,
                                '--rm_dir', 3,
                                '--annotation_file',4,
-                               '--input_type', 5
+                               '--input_type', 5,
+                               '--zip_files', 6
                                ]
 
-    is_wormcat_installed = '{}{}is_wormcat_installed.R'.format(os.path.dirname(__file__),os.path.sep)
+    is_wormcat_installed = f'{os.path.dirname(__file__)}{os.path.sep}is_wormcat_installed.R'
     wormcat_library_path = [is_wormcat_installed, '--no-save', 0, '--quiet', 1]
 
     if platform.system() == 'Windows':
@@ -31,14 +32,13 @@ class ExecuteR(object):
         ret_val = self.run(self.wormcat_library_path,"")
         return ret_val
 
-    def worm_cat_fun(self, file_name, out_dir, title="rgs", annotation_file="straight", input_type="Sequence ID"):
-        ret_val = self.run(self.worm_cat_function, file_name, title, out_dir, "False", annotation_file, input_type)
+    def worm_cat_fun(self, file_name, out_dir, title, annotation_file, input_type):
+        ret_val = self.run(self.worm_cat_function, file_name, title, out_dir, "False", annotation_file, input_type, "False")
         return ret_val
 
     def run(self, arg_list, *args):
         try:
             processed_args = self.process_args(arg_list, *args)
-            #print(f"R function: {processed_args}")
             process = Popen(processed_args, stdout=PIPE)
             out, err = process.communicate()
             out = str(out, 'utf-8')

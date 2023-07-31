@@ -37,6 +37,7 @@ def significant(x):
 
 def process_category_files(files_to_process, annotation_file, out_data_xlsx):
     data = pd.read_csv(annotation_file)
+    #writer = pd.ExcelWriter("{}".format(out_data_xlsx), engine='openpyxl')
     writer = pd.ExcelWriter("{}".format(out_data_xlsx), engine='xlsxwriter')
 
     #files_to_process = pd.read_csv("{}/files_to_process.csv".format(base_dir))
@@ -51,6 +52,7 @@ def process_category_files(files_to_process, annotation_file, out_data_xlsx):
             category_sheet = process_category_file_row(row, category_sheet)
 
         category_sheet.to_excel(writer, sheet_name=sheet_label, index=False)
+        
 
     writer.save()
 
