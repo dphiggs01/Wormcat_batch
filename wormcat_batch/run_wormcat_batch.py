@@ -95,16 +95,18 @@ def process_spreadsheet(xsl_file_nm, output_dir, annotation_file):
 
 def files_to_process(output_dir):
     '''
-    After all the sheet on the Excel have been executed create a dataframe that can be used to summarize the results
+    After all the sheets on the Excel have been executed create a dataframe that can be used to summarize the results
     this dataframe is used to create the output Excel
     '''
-    df_process = pd.DataFrame(columns=['sheet', 'category', 'file','label'])
+    process_lst = []
     for dir_nm in os.listdir(output_dir):
         for cat_num in [1,2,3]:
             rgs_fisher = f"{output_dir}{os.path.sep}{dir_nm}{os.path.sep}rgs_fisher_cat{cat_num}.csv"
             cat_nm = f"Cat{cat_num}"
             row = {'sheet': cat_nm, 'category': cat_num, 'file': rgs_fisher,'label': dir_nm}
-            df_process = df_process.append(row, ignore_index=True)
+            process_lst.append(row)
+
+    df_process = pd.DataFrame(process_lst, columns=['sheet', 'category', 'file','label'])
     return df_process
 
 ##########################################################

@@ -1,12 +1,13 @@
 from setuptools import setup
 
-#python setup.py sdist
+# rm -rf dist
+# python setup.py sdist
 #pip install dist/wormcat_batch-1.0.1.tar.gz
 # twine check dist/*
 # twine upload --repository pypi dist/*
 
 setup(name='wormcat_batch',
-      version='1.0.8',
+      version='1.0.9',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
