@@ -33,6 +33,7 @@ class ExecuteR(object):
         return ret_val
 
     def worm_cat_fun(self, file_name, out_dir, title, annotation_file, input_type):
+        print(f"Calling Wormcat with {os.path.basename(file_name)[:-4]} data")
         ret_val = self.run(self.worm_cat_function, file_name, title, out_dir, "False", annotation_file, input_type, "False")
         return ret_val
 

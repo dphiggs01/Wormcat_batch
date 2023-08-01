@@ -4,7 +4,6 @@ import argparse
 import pandas as pd
 import shutil
 import zipfile
-import json
 import importlib.metadata
 from datetime import datetime
 from wormcat_batch.execute_r import ExecuteR
@@ -43,8 +42,9 @@ def process_csv_files(csv_file_path, wormcat_out_path, annotation_file):
 
 def create_summary_spreadsheet(wormcat_out_path, annotation_file, out_xsl_file_nm):
     '''
-    After all the sheets on the Excel have been executed create a dataframe that can be used to summarize the results
-    this dataframe is used to create the output Excel
+    After all the sheets on the Excel have been executed or CSV files processed 
+    create a dataframe that can be used to summarize the results.
+    This dataframe is used to create the output Excel.
     '''
     process_lst = []
     for dir_nm in os.listdir(wormcat_out_path):
@@ -72,12 +72,12 @@ def get_wormcat_lib():
             print("Wormcat is not installed or cannot be found.")
             exit(-1)
         path = path[first_quote+1:last_quote]
-    print(f"wormcat_lib_path={path}")
+    # print(f"wormcat_lib_path={path}")
     return path
 
 def get_category_files(path):
     '''
-    get the list of available annotation files for Wormcat.
+    Get the list of available annotation files for Wormcat.
     These files exist in the R wormcat install under the "extdata" directory
     '''
     category_files=[]
@@ -97,17 +97,18 @@ def create_directory(directory, with_backup=False):
     Utility function to create a directory and backup the original if it exists and has content
     '''
     if with_backup and os.path.exists(directory) and os.listdir(directory):
-        print(f"Directory exists with content [{directory}]")
+        print(f"Creating backup of existing directory [{directory}]")
         # Create backup directory name with a unique timestamp suffix
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         backup_dir = f"{directory}_{timestamp}.bk"
-        # Create a backup of the existing directory
         shutil.move(directory, backup_dir)
 
-    # Create a new empty directory
     os.makedirs(directory, exist_ok=True)
 
 def zip_directory(directory_path, zip_file_name):
+    '''
+    Compress the content of a directory in zip format.
+    '''
     with zipfile.ZipFile(zip_file_name, 'w') as zipf:
         for root, _, files in os.walk(directory_path):
             for file in files:
@@ -118,14 +119,14 @@ def zip_directory(directory_path, zip_file_name):
 ##########################################################
 
 def main():
-    print("Wormcat Batch")
+    print("Starting Wormcat Batch")
     parser = argparse.ArgumentParser()
     help_statement="wormcat_cli --input-excel <path_to_excel> | --input-csv-path <path_to_csv> --output-path <path_to_out_dir> --annotation-file 'whole_genome_v2_nov-11-2021.csv' --clean-temp False"
     parser.add_argument('-i', '--input-excel', help='Input file in Excel/Wormcat format')
     parser.add_argument('-c', '--input-csv-path', help='Input path to a collection of CSV files in Wormcat format')
     parser.add_argument('-o', '--output-path', help='Output path')
     parser.add_argument('-a', '--annotation-file', default='whole_genome_v2_nov-11-2021.csv', help='Annotation file name or path default=whole_genome_v2_nov-11-2021.csv')
-    parser.add_argument('-t', '--clean-temp', default=False, help='Remove files created while processing default=False')
+    parser.add_argument('-t', '--clean-temp', default='False', help='Remove files created while processing default=False')
 
     parser.add_argument('-v', '--version', action='version', version=f'%(prog)s v{importlib.metadata.version("wormcat_batch")}')
     args = parser.parse_args()
@@ -154,10 +155,10 @@ def main():
             return
         annotation_file_path = f"{wormcat_path}{os.path.sep}extdata{os.path.sep}{args.annotation_file}"
     
-    print("Input Excel:", args.input_excel)
-    print("Input CSV Path:", args.input_csv_path)
-    print("Output Path:", args.output_path)
-    print("Annotation File:", args.annotation_file)
+    if args.clean_temp.lower().title() == 'True':
+        clean_temp = True
+    else:
+        clean_temp = False
 
     # Create the output directory if it does not exsist
     # Create a backup of the directory if it does exist and has content
@@ -196,7 +197,7 @@ def main():
     zip_directory(wormcat_out_path, zip_dir_nm)
     
     # If set Remove files created while processing
-    if args.clean_temp:
+    if clean_temp:
         shutil.rmtree(wormcat_out_path)
         if args.input_excel:
             shutil.rmtree(csv_file_path)

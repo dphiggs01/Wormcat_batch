@@ -34,15 +34,41 @@ def significant(x):
         ret_val = 'NS'
     return ret_val
 
+def create_legend(writer, values, excel_formats):
+    data = {'Color Code <=': values[::-1]}
+    legend_sheet = pd.DataFrame(data)
+
+    legend_sheet.to_excel(writer, sheet_name='Legend', index=False)
+    worksheet = writer.sheets['Legend']
+    num_rows, num_columns = legend_sheet.shape
+    range = f"A1:{chr(num_columns + 64)}{num_rows+1}"
+
+    worksheet.conditional_format(range,{'type':'cell', 'criteria':'=', 'value':0, 'format':excel_formats[0]})
+    for index, value in enumerate(values):
+        worksheet.conditional_format(range,{'type':'cell', 'criteria':'<=', 'value':value, 'format':excel_formats[index+1]})
+       
+
+    worksheet.autofit()       
+
 
 def process_category_files(files_to_process, annotation_file, out_data_xlsx):
     data = pd.read_csv(annotation_file)
     #writer = pd.ExcelWriter("{}".format(out_data_xlsx), engine='openpyxl')
     writer = pd.ExcelWriter("{}".format(out_data_xlsx), engine='xlsxwriter')
 
-    #files_to_process = pd.read_csv("{}/files_to_process.csv".format(base_dir))
-
     sheets = files_to_process['sheet'].unique()
+    values = [0.0000000001, 0.00000001, 0.000001, 0.0001, 0.05]
+    formats = [{'bg_color': 'white', 'font_color': 'black','num_format': '0'},
+               {'bg_color': '#244162', 'font_color': 'white','num_format': '0.000E+00'},
+               {'bg_color': '#355f91', 'font_color': 'white','num_format': '0.000E+00'},
+               {'bg_color': '#95b3d7', 'font_color': 'black','num_format': '0.000E+00'},
+               {'bg_color': '#b8cce4', 'font_color': 'black','num_format': '0.000E+00'},
+               {'bg_color': '#f4f2fe', 'font_color': 'black','num_format': '0.000E+00'}
+               ]
+    excel_formats = [ writer.book.add_format(f) for f in formats ]
+    
+    
+    create_legend(writer, values, excel_formats)
 
     for sheet_label in sheets:
         cat_files = files_to_process[files_to_process['sheet'] == sheet_label]
@@ -52,7 +78,19 @@ def process_category_files(files_to_process, annotation_file, out_data_xlsx):
             category_sheet = process_category_file_row(row, category_sheet)
 
         category_sheet.to_excel(writer, sheet_name=sheet_label, index=False)
+        worksheet = writer.sheets[sheet_label]
+        num_rows, num_columns = category_sheet.shape
+        range = f"B1:{chr(num_columns + 64)}{num_rows+1}"
+        #print(f"{range=}")
+
+        worksheet.conditional_format(range,{'type':'cell', 'criteria':'=', 'value':0, 'format':excel_formats[0]})
+        for index, value in enumerate(values):
+            worksheet.conditional_format(range,{'type':'cell', 'criteria':'<=', 'value':value, 'format':excel_formats[index+1]})
+       
+
         
 
-    writer.save()
+        worksheet.autofit()            
+
+    writer.close()
 

@@ -2,12 +2,12 @@ from setuptools import setup
 
 # rm -rf dist
 # python setup.py sdist
-#pip install dist/wormcat_batch-1.0.1.tar.gz
+# pip install dist/wormcat_batch-1.0.1.tar.gz
 # twine check dist/*
 # twine upload --repository pypi dist/*
 
 setup(name='wormcat_batch',
-      version='1.1.0',
+      version='1.1.1',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
@@ -15,7 +15,7 @@ setup(name='wormcat_batch',
       license='MIT',
 
       packages=['wormcat_batch'],
-      install_requires=['pandas','xlrd','xlsxwriter','openpyxl'],
+      install_requires=['pandas','xlrd','xlsxwriter'],
       entry_points={
           'console_scripts': ['wormcat_cli=wormcat_batch.run_wormcat_batch:main'],
       },
