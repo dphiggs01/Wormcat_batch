@@ -18,5 +18,5 @@ echo
 echo docker run -it ${USER}/${TAG}:${VERSION} /bin/bash
 echo docker run --rm -p 8787:8787 -e PASSWORD=password -v ${HOME}/projects:/home/rstudio/projects ${USER}/${TAG}:${VERSION}
 echo docker run --rm -v ${HOME}/projects:/home/rstudio/projects ${USER}/${TAG}:${VERSION} /rstudio/projects/
-echo docker run -v ${HOME}/projects:/home/rstudio/projects ${USER}/${TAG}:${VERSION} wormcat_cli --input_excel /home/rstudio/projects/Murphy_TS.xlsx --output-path /home/rstudio/projects/output
+echo docker run --rm -v ${HOME}/projects:/home/rstudio/projects ${USER}/${TAG}:${VERSION} wormcat_cli --input-excel /home/rstudio/projects/Murphy_TS.xlsx --output-path /home/rstudio/projects/output
 echo

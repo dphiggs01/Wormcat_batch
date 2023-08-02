@@ -7,7 +7,7 @@ from setuptools import setup
 # twine upload --repository pypi dist/*
 
 setup(name='wormcat_batch',
-      version='1.1.1',
+      version='1.1.2',
       description='Batch processing for Wormcat data',
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
@@ -15,7 +15,7 @@ setup(name='wormcat_batch',
       license='MIT',
 
       packages=['wormcat_batch'],
-      install_requires=['pandas','xlrd','xlsxwriter'],
+      install_requires=['pandas','xlrd','openpyxl','xlsxwriter'],
       entry_points={
           'console_scripts': ['wormcat_cli=wormcat_batch.run_wormcat_batch:main'],
       },

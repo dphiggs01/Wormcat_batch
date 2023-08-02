@@ -57,7 +57,11 @@ Substituting the following:
 <br>
 
 ```
-docker run -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input_excel /usr/data/<my_wormcat>.xlsx --output-path /usr/data
+docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input_excel /usr/data/<my_wormcat>.xlsx --output-path /usr/data
+```
+
+```
+docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input_excel /usr/data/<my_wormcat>.xlsx --output-path /usr/data
 ```
 
 <br>

@@ -8,23 +8,25 @@ import importlib.metadata
 from datetime import datetime
 from wormcat_batch.execute_r import ExecuteR
 from wormcat_batch.create_wormcat_xlsx import process_category_files
+from wormcat_batch.create_sunburst import create_sunburst
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# Create CSV Files from the given Excelsheet
 def extract_csv_files(input_excel_nm, csv_file_path):
+    '''
+    Create CSV Files from the given Excel spreadsheet
+    '''
     input_excel = pd.ExcelFile(input_excel_nm)
     for sheet in input_excel.sheet_names:
         sheet_df = input_excel.parse(sheet)
         sheet_df.to_csv(f'{csv_file_path}{os.path.sep}{sheet}.csv', index=False)
 
         
-# Read CSV Files and call worm cat for each file
 def process_csv_files(csv_file_path, wormcat_out_path, annotation_file):
     '''
-    Read the Excel file and process each sheet individually through Wormcat
+    Read the csv data files and process each individually through Wormcat
     '''
     for dir_content in os.listdir(csv_file_path):
         conetnt_full_path = os.path.join(csv_file_path, dir_content)
@@ -38,6 +40,7 @@ def process_csv_files(csv_file_path, wormcat_out_path, annotation_file):
             wormcat_output_dir = f'{wormcat_out_path}{os.path.sep}{file_nm_wo_ext}'
             executeR = ExecuteR()
             executeR.worm_cat_fun(conetnt_full_path, wormcat_output_dir, title, annotation_file, wormcat_input_type)
+            create_sunburst(wormcat_output_dir)
     return wormcat_out_path
 
 def create_summary_spreadsheet(wormcat_out_path, annotation_file, out_xsl_file_nm):
@@ -115,18 +118,20 @@ def zip_directory(directory_path, zip_file_name):
                 file_path = os.path.join(root, file)
                 zipf.write(file_path, os.path.relpath(file_path, directory_path))
 
+## main application functions 
 
-##########################################################
-
-def main():
-    print("Starting Wormcat Batch")
+def process_command_arguments():
+    '''
+    The process_command_arguments method validates and sets the input arguments 
+    to conform with downstream processing
+    '''
     parser = argparse.ArgumentParser()
     help_statement="wormcat_cli --input-excel <path_to_excel> | --input-csv-path <path_to_csv> --output-path <path_to_out_dir> --annotation-file 'whole_genome_v2_nov-11-2021.csv' --clean-temp False"
     parser.add_argument('-i', '--input-excel', help='Input file in Excel/Wormcat format')
     parser.add_argument('-c', '--input-csv-path', help='Input path to a collection of CSV files in Wormcat format')
     parser.add_argument('-o', '--output-path', help='Output path')
     parser.add_argument('-a', '--annotation-file', default='whole_genome_v2_nov-11-2021.csv', help='Annotation file name or path default=whole_genome_v2_nov-11-2021.csv')
-    parser.add_argument('-t', '--clean-temp', default='False', help='Remove files created while processing default=False')
+    parser.add_argument('-t', '--clean-temp', default='True', help='Remove files created while processing default=False')
 
     parser.add_argument('-v', '--version', action='version', version=f'%(prog)s v{importlib.metadata.version("wormcat_batch")}')
     args = parser.parse_args()
@@ -134,17 +139,16 @@ def main():
     if not args.input_excel and not args.input_csv_path:
         print(help_statement)
         print("An Excel Input file or a path to CSV files is required.")
-        return
+        sys.exit(-1)
 
     if not args.output_path:
         print(help_statement)
-        print("Output path is required.")
-        return
+        print("An Output path is required.")
+        sys.exit(-1)
 
-    if os.path.sep in args.annotation_file:
-        # Assume we are given a path to an external Annotation file
-        annotation_file_path = args.annotation_file
-    else:
+    # if args.annotation_file is not a path to an annotation file
+    # vaildate the input name and set the full path
+    if not (os.path.sep in args.annotation_file):
         wormcat_path = get_wormcat_lib()
         annotation_files = get_category_files(wormcat_path)
          
@@ -152,23 +156,35 @@ def main():
             print(help_statement)
             print("Missing or incorrect annotation-file-nm.")
             print("Available names: {}".format(annotation_files))
-            return
-        annotation_file_path = f"{wormcat_path}{os.path.sep}extdata{os.path.sep}{args.annotation_file}"
+            sys.exit(-1)
+        args.annotation_file = f"{wormcat_path}{os.path.sep}extdata{os.path.sep}{args.annotation_file}"
     
+    # Support TRUE or True as input to clean temp
+    # otherwise set to False
     if args.clean_temp.lower().title() == 'True':
-        clean_temp = True
+        args.clean_temp = True
     else:
-        clean_temp = False
+        args.clean_temp = False
 
-    # Create the output directory if it does not exsist
-    # Create a backup of the directory if it does exist and has content
+    return args
+
+
+def main():
+    print("Starting Wormcat Batch")
+
+    # Validate the command line arguments
+    args = process_command_arguments()
+
+    # Create the output directory if it does not exsist.
+    # If it does exist and has content create a backup.
     create_directory(args.output_path, with_backup=True)
 
-    # If needed Extract the sreadsheet data
+    # If we are given an input_csv_path use it.
     if args.input_csv_path:
         csv_file_path = args.input_csv_path
     else:
-        # Create a directory to extrat the Spreadsheet data into CSV
+        # Else we MUST have been given an input_excel
+        # Create a directory and extract the Excel sheets as csv data
         csv_file_path = f"{args.output_path}{os.path.sep}csv_files"
         create_directory(csv_file_path)
         extract_csv_files(args.input_excel, csv_file_path)
@@ -180,27 +196,35 @@ def main():
         input_data_nm = os.path.splitext(base_input_excel)[0]
     else:
         input_data_nm = os.path.basename(args.input_csv_path)
+
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     output_base_dir =f"{input_data_nm}_{timestamp}"
     wormcat_out_path = f"{args.output_path}{os.path.sep}{output_base_dir}"
     create_directory(wormcat_out_path)
 
-    # Call wormcat on each CSV file
+    print(f"{args.input_excel=}")
+    print(f"{args.input_csv_path=}")
+    print(f"{args.output_path=}")
+    print(f"{args.annotation_file=}")
+    print(f"{args.clean_temp=}")
+
+    # Call Wormcat on each CSV file
     process_csv_files(csv_file_path, wormcat_out_path, args.annotation_file)
 
     # Create a summary spreadsheet of all CSV runs
     out_xsl_file_nm = f"{wormcat_out_path}{os.path.sep}Out_{input_data_nm}.xlsx"
-    create_summary_spreadsheet(wormcat_out_path, annotation_file_path, out_xsl_file_nm)
+    create_summary_spreadsheet(wormcat_out_path, args.annotation_file, out_xsl_file_nm)
     
     # Zip the results
     zip_dir_nm = f"{args.output_path}{os.path.sep}{output_base_dir}.zip"
     zip_directory(wormcat_out_path, zip_dir_nm)
     
     # If set Remove files created while processing
-    if clean_temp:
+    if args.clean_temp:
         shutil.rmtree(wormcat_out_path)
         if args.input_excel:
             shutil.rmtree(csv_file_path)
+
 
 if __name__ == '__main__':
     main()
