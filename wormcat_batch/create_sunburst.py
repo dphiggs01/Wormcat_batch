@@ -1,10 +1,16 @@
-import pandas as pd
+"""
+Create sunburt HTML file with Regulated Gene Set Data (RGS)
+"""
 import json
 import os
 import pkg_resources
+import pandas as pd
 
 
 def read_rgs_and_categories(file_nm_in):
+    """
+    Read the RGS Data and creat JSON based on Category 3 info
+    """
     nodes_dict = {}
     try:
         df = pd.read_csv(file_nm_in)
@@ -38,6 +44,12 @@ def read_rgs_and_categories(file_nm_in):
 
 
 def create_sunburst(dir_nm):
+    """
+    1. Read the sunburst template file 
+    2. Find the line "insert json here" in the template
+    3. Inject the Cat3 JSON Data at this point in the file
+    4. Save the file as sunburst.html
+    """
     file_nm_sunburst_html = f"{dir_nm}{os.path.sep}sunburst.html"
     file_nm_rgs_and_categories = f"{dir_nm}{os.path.sep}rgs_and_categories.csv"
     data = read_sunburst_template()
@@ -49,12 +61,15 @@ def create_sunburst(dir_nm):
             file.write(d)
             if "insert json here" in d:
                 json_data = json.dumps(read_rgs_and_categories(file_nm_rgs_and_categories))
-                json_var = "var json_data = {}".format(json_data)
+                json_var = f"var json_data = {json_data}"
                 file.write(json_var)
 
 
 
 def getChildrenFor(parent, nodes_dict):
+    """
+    Utility function getChildrenFor given parent
+    """
     children = nodes_dict['children']
     node_list = None
     for key in children:
@@ -70,6 +85,9 @@ def getChildrenFor(parent, nodes_dict):
 
 
 def getChildrenFor2(grand_parent, parent, nodes_dict):
+    """
+    Utility function getChildrenFor given grand parent
+    """
     children = getChildrenFor(grand_parent, nodes_dict)
     node_list = None
     for key in children:
@@ -85,6 +103,9 @@ def getChildrenFor2(grand_parent, parent, nodes_dict):
     return node_list
 
 def read_sunburst_template():
+    """
+    Utility function to fined the template file in the package directory
+    """
     try:
         data = []
         #data = pkg_resources.resource_string(__name__, 'sunburst.template').decode('utf-8')
@@ -98,7 +119,7 @@ def read_sunburst_template():
 
 
 if __name__ == "__main__":
-    print("starting {}".format(os.getcwd()))
+    print(f"starting {os.getcwd()}")
     create_sunburst('RGS_Feb-14-2020-11_45_54')
 
 

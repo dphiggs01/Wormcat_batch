@@ -26,12 +26,12 @@ if (is.null(args$file)) {
   stop("At least one argument must be supplied (input file).n", call.= FALSE)
 }
 
-con <- file("worm_cat_fun.log")
-sink(con, append = TRUE)
-sink(con, append = TRUE, type = "message")
+# con <- file("worm_cat_fun.log") # nolint
+# sink(con, append = TRUE) # nolint
+# sink(con, append = TRUE, type = "message") # nolint
 
 
-print(paste("worm_cat_fun", args$file, args$title, args$out_dir, args$rm_dir, args$annotation_file, args$input_type, args$zip_files))
+#print(paste("worm_cat_fun", args$file, args$title, args$out_dir, args$rm_dir, args$annotation_file, args$input_type, args$zip_files)) # nolint
 
 if (toupper(args$rm_dir) == "TRUE") {
     rm_dir <- TRUE

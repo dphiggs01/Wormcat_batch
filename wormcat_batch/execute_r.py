@@ -1,3 +1,6 @@
+"""
+Module to delegate calls to R program execution
+"""
 from subprocess import Popen, PIPE
 import sys
 import os
@@ -8,6 +11,9 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 class ExecuteR(object):
+    """
+    Class to mange R exection
+    """
     wormcat_r = f'{os.path.dirname(__file__)}{os.path.sep}worm_cat.R'
 
     worm_cat_function = [wormcat_r,
@@ -29,15 +35,24 @@ class ExecuteR(object):
 
 
     def wormcat_library_path_fun(self):
+        """
+        Utility function to get the R library path to the Wormcat function
+        """
         ret_val = self.run(self.wormcat_library_path,"")
         return ret_val
 
     def worm_cat_fun(self, file_name, out_dir, title, annotation_file, input_type):
+        """
+        Utility function to setup the call to Wormcat function
+        """
         print(f"Calling Wormcat with {os.path.basename(file_name)[:-4]} data")
         ret_val = self.run(self.worm_cat_function, file_name, title, out_dir, "False", annotation_file, input_type, "False")
         return ret_val
 
     def run(self, arg_list, *args):
+        """
+        Execute the R script
+        """
         try:
             processed_args = self.process_args(arg_list, *args)
             process = Popen(processed_args, stdout=PIPE)
@@ -47,13 +62,15 @@ class ExecuteR(object):
                 out = None
             #sys.stderr.write("run: out={} err={}\n".format(out,err))
             return out
-        except Exception as e:
-            sys.stderr.write("ERROR: command line error %s\n" % args)
-            sys.stderr.write("ERROR: %s\n" % e)
+        except Exception as err:
+            sys.stderr.write(f"ERROR: command line error {args}\n")
+            sys.stderr.write(f"ERROR: %{err}\n")
             sys.exit(-1)
 
     def process_args(self, arg_tuple, *args):
-        # process the arg
+        """
+        Utility function to build the arg list
+        """
         arg_list = list(arg_tuple)
         for index in range(0, len(arg_list)):
             if type(arg_list[index]) == int:
