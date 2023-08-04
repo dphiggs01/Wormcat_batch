@@ -78,6 +78,7 @@ summary Excel spreadsheet.
 #### Deploy
 * Advance the version number in setup.py
 * `conda deactivate # twine is installed in base env`
+* `increment setup.py version`
 * `cd <project directory>`
 * `rm -rf ./dist`
 * `rm -rf ./wormcat_batch.egg-info`
