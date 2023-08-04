@@ -34,19 +34,20 @@ def process_csv_files(csv_file_path, wormcat_out_path, annotation_file):
     Read the csv data files and process each individually through Wormcat
     """
     for dir_content in os.listdir(csv_file_path):
-        conetnt_full_path = os.path.join(csv_file_path, dir_content)
-        if os.path.isfile(conetnt_full_path):
-            with open(conetnt_full_path, 'r') as file:
-                header_line = file.readline().strip()
-            wormcat_input_type = header_line.replace(' ', '.')
-            csv_file_nm = os.path.basename(conetnt_full_path)
-            file_nm_wo_ext = csv_file_nm[:-4]  # Remove .csv from file name
-            title = file_nm_wo_ext.replace('_', ' ')
-            wormcat_output_dir = f'{wormcat_out_path}{os.path.sep}{file_nm_wo_ext}'
-            execute_r = ExecuteR()
-            execute_r.worm_cat_fun(
-                conetnt_full_path, wormcat_output_dir, title, annotation_file, wormcat_input_type)
-            create_sunburst(wormcat_output_dir)
+        if dir_content.endswith(".csv"):
+            conetnt_full_path = os.path.join(csv_file_path, dir_content)
+            if os.path.isfile(conetnt_full_path):
+                with open(conetnt_full_path, 'r', encoding='utf-8') as file:
+                    header_line = file.readline().strip()
+                wormcat_input_type = header_line.replace(' ', '.')
+                csv_file_nm = os.path.basename(conetnt_full_path)
+                file_nm_wo_ext = csv_file_nm[:-4]  # Remove .csv from file name
+                title = file_nm_wo_ext.replace('_', ' ')
+                wormcat_output_dir = f'{wormcat_out_path}{os.path.sep}{file_nm_wo_ext}'
+                execute_r = ExecuteR()
+                execute_r.worm_cat_fun(
+                    conetnt_full_path, wormcat_output_dir, title, annotation_file, wormcat_input_type)
+                create_sunburst(wormcat_output_dir)
     return wormcat_out_path
 
 
@@ -58,12 +59,13 @@ def create_summary_spreadsheet(wormcat_out_path, annotation_file, out_xsl_file_n
     """
     process_lst = []
     for dir_nm in os.listdir(wormcat_out_path):
-        for cat_num in [1, 2, 3]:
-            rgs_fisher = f"{wormcat_out_path}{os.path.sep}{dir_nm}{os.path.sep}rgs_fisher_cat{cat_num}.csv"
-            cat_nm = f"Cat{cat_num}"
-            row = {'sheet': cat_nm, 'category': cat_num,
-                   'file': rgs_fisher, 'label': dir_nm}
-            process_lst.append(row)
+        if os.path.isdir(os.path.join(wormcat_out_path, dir_nm)):
+            for cat_num in [1, 2, 3]:
+                rgs_fisher = f"{wormcat_out_path}{os.path.sep}{dir_nm}{os.path.sep}rgs_fisher_cat{cat_num}.csv"
+                cat_nm = f"Cat{cat_num}"
+                row = {'sheet': cat_nm, 'category': cat_num,
+                    'file': rgs_fisher, 'label': dir_nm}
+                process_lst.append(row)
 
     df_process = pd.DataFrame(process_lst, columns=[
                               'sheet', 'category', 'file', 'label'])
@@ -93,14 +95,14 @@ def get_category_files(path):
     """
     Get the list of available annotation files for Wormcat.
     These files exist in the R wormcat install under the "extdata" directory
+    and end with .csv
     """
     category_files = []
-    index = 1
     path = f"{path}{os.path.sep}extdata"
     for root, dirs, files in os.walk(path):
         for filename in files:
-            category_files.append(filename)
-            index += 1
+            if filename.endswith(".csv"):
+                category_files.append(filename)
 
     return category_files
 
@@ -110,15 +112,33 @@ def get_category_files(path):
 def create_directory(directory, with_backup=False):
     """
     Utility function to create a directory and backup the original if it exists and has content
+    And the content was put there by a previous run of the program
     """
-    if with_backup and os.path.exists(directory) and os.listdir(directory):
-        print(f"Creating backup of existing directory [{directory}]")
-        # Create backup directory name with a unique timestamp suffix
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        backup_dir = f"{directory}_{timestamp}.bk"
-        shutil.move(directory, backup_dir)
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    created_by_flag = '.created_by_wormcat_batch'
 
-    os.makedirs(directory, exist_ok=True)
+    if with_backup and os.path.exists(directory) and os.listdir(directory):
+        created_by_flag_check = os.path.join(directory, created_by_flag)
+        if os.path.exists(created_by_flag_check):
+            print(f"Creating backup of existing directory [{directory}]")
+            # Create backup directory name with a unique timestamp suffix
+            backup_dir = f"{directory}_{timestamp}.bk"
+            shutil.move(directory, backup_dir)
+        else:
+            print("ERROR")
+            print(f"Directory {directory} is not Empty and was not created by a prior run of this program.")
+            sys.exit(-1)
+
+    try:
+        os.makedirs(directory, exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
+        created_by_flag_check = os.path.join(directory, created_by_flag)
+        with open(created_by_flag_check, 'w', encoding='utf-8') as file:
+            file.write(timestamp)
+    except OSError as err:
+        print(f"ERROR: Cannot create directory\n{err}")
+        sys.exit(-1)
+
 
 
 def zip_directory(directory_path, zip_file_name):
@@ -168,14 +188,17 @@ def process_command_arguments():
 
     # if args.annotation_file is not a path to an annotation file
     # vaildate the input name and set the full path
-    if not (os.path.sep in args.annotation_file):
+    if not os.path.sep in args.annotation_file:
         wormcat_path = get_wormcat_lib()
         annotation_files = get_category_files(wormcat_path)
         
         if not args.annotation_file or not args.annotation_file in annotation_files:
             print(help_statement)
             print("Missing or incorrect annotation-file-nm.")
-            print(f"Available names: {annotation_files}")
+            annotation_file_names = ""
+            for index, annotation_file in enumerate(sorted(annotation_files)):
+                annotation_file_names += f"\t{index+1} {annotation_file}\n"
+            print(f"Available names:\n{annotation_file_names}")
             sys.exit(-1)
         args.annotation_file = f"{wormcat_path}{os.path.sep}extdata{os.path.sep}{args.annotation_file}"
 

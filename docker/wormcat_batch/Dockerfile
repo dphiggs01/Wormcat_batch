@@ -42,7 +42,6 @@ RUN apt-get update -q && \
 
 RUN pip3 install wormcat_batch xlsxwriter openpyxl pandas --no-input
 
-
 # Create user and setup permissions on /etc/sudoers
 RUN echo "rstudio ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers && \
     chmod 0440 /etc/sudoers && \

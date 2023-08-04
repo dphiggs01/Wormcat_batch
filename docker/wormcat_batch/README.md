@@ -72,19 +72,19 @@ You can download an Example Microsoft Excel file [here](http://www.wormcat.com/s
 * __<full_path_to_excel>__ path on the local machine that contains the Excel file to process.
 
 ```
-docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input_excel /usr/data/Murphy_TS.xlsx --output-path /usr/data
+docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input-excel /usr/data/Murphy_TS.xlsx --output-path /usr/data/wormcat_out
 ```
 <br>
 <br>
 
 **2. With a directory path to CSV file with Worm Base or Sequence Ids as Input**
 
-You can download an Example Directory of CSV files [here](https://github.com/dphiggs01/Wormcat_batch/blob/bee3c9a3d91453d2fe7cfae946d2f795ca524b51/docker/wormcat_batch/Murphy_TS_csv.zip) to confirm the required format. 
+You can download an Example Directory of CSV files [here](https://github.com/dphiggs01/Wormcat_batch/raw/master/docker/wormcat_batch/Murphy_TS_csv.zip) to confirm the required format. 
 
-* __<full_path_to_csv>__ path on the local machine that contains the CSV directory.
+* __<full_path_to_csv>__ path on the local machine that contains the extracted CSV directory.
 
 ```
-docker run --rm -v <full_path_to_csv>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input_excel /usr/data/Murphy_TS_csv --output-path /usr/data
+docker run --rm -v <full_path_to_csv>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input-csv-path /usr/data/Murphy_TS_csv --output-path /usr/data/wormcat_out
 ```
 
 <br>
@@ -97,7 +97,7 @@ You can download an Example Annotation file [here](http://www.wormcat.com/static
 * __<full_path_to_excel>__ path on the local machine that contains the Excel and annotation file to process.
 
 ```
-docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input_excel /usr/data/Murphy_TS.xlsx --annotation-file /usr/data/whole_genome_v2_nov-11-2021.csv --output-path /usr/data
+docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input-excel /usr/data/Murphy_TS.xlsx --annotation-file /usr/data/whole_genome_v2_nov-11-2021.csv --output-path /usr/data/wormcat_out
 ```
 
 <br>
@@ -138,8 +138,9 @@ docker run --rm danhumassmed/wormcat_batch:1.0.1 wormcat_cli --help
 <br>
 
 * Execute R Commands
+* This command returns the available (internal) Annotation files that wormcat can run
 * **Note:** *Add a mount point and execute any RScript*
 
 ```
-docker run --rm danhumassmed/wormcat_batch:1.0.1 R -e "print("Hello World!");print("Any R Script RScript")"
+docker run --rm danhumassmed/wormcat_batch:1.0.1 R -q -e "library('wormcat');get_available_annotation_files()"
 ```
