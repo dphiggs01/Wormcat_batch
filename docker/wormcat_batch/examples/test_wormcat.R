@@ -6,52 +6,42 @@ library(wormcat)
 
 # IMPORTANT Set working directory
 ##############################################
-# The location of Wormcat Development files
-# i.e, where the code was checked out of gitHub
-# for me the location is /Users/dan/Code/R_Workspace/Wormcat
-project_dir <- "/Users/dan/Code/R_Workspace/Wormcat"
+project_dir <- "/home/rstudio/examples"
 
-message(sprintf("The Wormcat project directory is: %s\n",project_dir))
-setwd(sprintf("%s/test",project_dir))
+print(sprintf("The Wormcat project directory is: %s", project_dir))
+print("")
+setwd(project_dir)
 
 # Remove any objects in the Global Environment
-rm(list= ls())
+rm(list = ls())
 
 # Print the available Annotations files
 annotation_files <- get_available_annotation_files()
-message("Available Annotation files are:")
-message(annotation_files)
-message("\n")
+print("Available Annotation files are:")
+for (annotation_file in annotation_files) {
+  print(sprintf(".  %s", annotation_file))
+}
+
+print("")
 
 # Set Variables to call Wormcat
 file_to_process <- "sams-1_up.csv"
 title <- "sams-1 up"
-output_dir <- "wormcat_out" # This will create a directory at the current location
-rm_dir = FALSE
-annotation_file <-"whole_genome_v2_nov-11-2021.csv"
+output_dir <- "../projects/wormcat_out"
+rm_dir <- FALSE
+annotation_file <- "whole_genome_v2_nov-11-2021.csv"
 input_type <- "Wormbase.ID"
-zip_files=FALSE
+zip_files <- FALSE
 
-message(sprintf("The file to process is %s",file_to_process))
-message(sprintf("The report title prefix is %s",title))
-message(sprintf("The output directory is %s",output_dir))
-message(sprintf("The annotation file is %s",annotation_file))
-message(sprintf("The input file contains %ss",input_type))
-message("\n")
+print("Input parameters to worm_cat_fun:")
+print(sprintf(".  The file to process is %s", file_to_process))
+print(sprintf(".  The report title prefix is %s", title))
+print(sprintf(".  The output directory is %s", output_dir))
+print(sprintf(".  The annotation file is %s", annotation_file))
+print(sprintf(".  The input file contains %ss", input_type))
+print("")
 
-# Utility function to delete the directory if it exists
-delete_directory_if_exists <- function(directory_path) {
-  if (dir.exists(directory_path)) {
-    unlink(directory_path, recursive = TRUE)
-    message(paste("Directory", directory_path, "deleted."))
-  }
-}
-
-# Delete the output directory if it exists
-# A more advanced script would backup the directory or quit processing if
-# the directory exists and contains files
-delete_directory_if_exists(output_dir)
-
+print("Output worm_cat_fun:")
 # Call the Wormcat function
 worm_cat_fun(file_to_process,
              title,
@@ -61,5 +51,6 @@ worm_cat_fun(file_to_process,
              input_type,
              zip_files)
 
-message("\n")
-message("worm_cat_fun run complete!")
+
+print("")
+print("Test script complete!")

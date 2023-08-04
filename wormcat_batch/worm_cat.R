@@ -22,19 +22,35 @@ parser$add_argument("-z", "--zip_files", default=TRUE, help="Create a zip file o
 
 args <- parser$parse_args()
 
-if (is.null(args$file)){
-  stop("At least one argument must be supplied (input file).n", call.=FALSE)
+if (is.null(args$file)) {
+  stop("At least one argument must be supplied (input file).n", call.= FALSE)
 }
 
+con <- file("worm_cat_fun.log")
+sink(con, append = TRUE)
+sink(con, append = TRUE, type = "message")
+
+
 print(paste("worm_cat_fun", args$file, args$title, args$out_dir, args$rm_dir, args$annotation_file, args$input_type, args$zip_files))
+
+if (toupper(args$rm_dir) == "TRUE") {
+    rm_dir <- TRUE
+} else {
+    rm_dir <- FALSE
+}
+
+if (toupper(args$zip_files) == "TRUE") {
+    zip_files <- TRUE
+} else {
+    zip_files <- FALSE
+}
 
 worm_cat_fun(
     file_to_process = args$file,
     title = args$title,
     output_dir = args$out_dir,
-    rm_dir = args$rm_dir,
+    rm_dir = rm_dir,
     annotation_file = args$annotation_file,
     input_type = args$input_type,
-    zip_files = args$zip_files
+    zip_files = zip_files
 )
-
