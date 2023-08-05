@@ -22,7 +22,12 @@ def extract_csv_files(input_excel_nm, csv_file_path):
     """
     Create CSV Files from the given Excel spreadsheet
     """
-    input_excel = pd.ExcelFile(input_excel_nm)
+    try:
+        input_excel = pd.ExcelFile(input_excel_nm)
+    except ValueError:
+        print(f"ERROR: File Name [{input_excel_nm}[] is Not a Valid Excel File.")
+        sys.exit(-1)
+    
     for sheet in input_excel.sheet_names:
         sheet_df = input_excel.parse(sheet)
         sheet_df.to_csv(
@@ -75,9 +80,9 @@ def create_summary_spreadsheet(wormcat_out_path, annotation_file, out_xsl_file_n
 
 
 def get_wormcat_lib():
-    '''
+    """
     Find the location where the R Wormcat program is installed
-    '''
+    """
     execute_r = ExecuteR()
     path = execute_r.wormcat_library_path_fun()
     if path:
@@ -127,14 +132,15 @@ def create_directory(directory, with_backup=False):
         else:
             print("ERROR")
             print(f"Directory {directory} is not Empty and was not created by a prior run of this program.")
+            print("Change the output directory to an empty or non exsisting directory.")
             sys.exit(-1)
 
     try:
         os.makedirs(directory, exist_ok=True)
-        os.makedirs(directory, exist_ok=True)
-        created_by_flag_check = os.path.join(directory, created_by_flag)
-        with open(created_by_flag_check, 'w', encoding='utf-8') as file:
-            file.write(timestamp)
+        if with_backup:
+            created_by_flag_check = os.path.join(directory, created_by_flag)
+            with open(created_by_flag_check, 'w', encoding='utf-8') as file:
+                file.write(timestamp)
     except OSError as err:
         print(f"ERROR: Cannot create directory\n{err}")
         sys.exit(-1)
@@ -152,16 +158,54 @@ def zip_directory(directory_path, zip_file_name):
                 zipf.write(file_path, os.path.relpath(
                     file_path, directory_path))
 
-# main application functions
 
+def is_valid_directory_name(directory_name):
+    """
+    Check if the directory name string is a valid name
+    """
+    ret_val = True
+    if not isinstance(directory_name, str):
+        ret_val = False
+
+    # Check if the directory name is empty or contains only whitespace
+    if not directory_name.strip():
+        ret_val = False
+
+    # Check if the directory name contains any invalid characters
+    invalid_characters = '\'?%*|"<>'
+    if any(char in invalid_characters for char in directory_name):
+        ret_val = False
+
+    return ret_val
+
+class WormcatArgumentParser(argparse.ArgumentParser):
+    """
+    Add annotation file descriptions to help text
+    """
+    def print_help(self, file=None):
+        wormcat_path = get_wormcat_lib()
+        annotation_files = get_category_files(wormcat_path)
+        annotation_file_names = ""
+        for index, annotation_file in enumerate(sorted(annotation_files)):
+            annotation_file_names += f"\t{index+1} {annotation_file}\n"
+
+        super().print_help(file)
+        print(f"\nannotation-files:\n{annotation_file_names}")
+
+def print_error_and_quit(parser, error_msg):
+    """
+    Print command line ERROR message and quit
+    """
+    parser.print_usage()
+    print(f"ERROR: {error_msg}")
+    sys.exit(-1)
 
 def process_command_arguments():
     """
     The process_command_arguments method validates and sets the input arguments 
     to conform with downstream processing
     """
-    parser = argparse.ArgumentParser()
-    help_statement = "wormcat_cli --input-excel <path_to_excel> | --input-csv-path <path_to_csv> --output-path <path_to_out_dir> --annotation-file 'whole_genome_v2_nov-11-2021.csv' --clean-temp False"
+    parser = WormcatArgumentParser()
     parser.add_argument('-i', '--input-excel',
                         help='Input file in Excel/Wormcat format')
     parser.add_argument('-c', '--input-csv-path',
@@ -177,14 +221,22 @@ def process_command_arguments():
     args = parser.parse_args()
 
     if not args.input_excel and not args.input_csv_path:
-        print(help_statement)
-        print("An Excel Input file or a path to CSV files is required.")
-        sys.exit(-1)
+        print_error_and_quit(parser, "An Excel Input file or a path to CSV files is required.")
 
-    if not args.output_path:
-        print(help_statement)
-        print("An Output path is required.")
-        sys.exit(-1)
+    if args.input_excel and args.input_csv_path:
+        print_error_and_quit(parser, "--input-excel [-i] and  --input-csv-path [-c] can not be used at the same time.")
+    
+    if args.input_excel and not os.path.isfile(args.input_excel):
+        print_error_and_quit(parser, f""" An Excel Input file not found.
+        [{args.input_excel}] is not a valid file name for wormcat batch.""")
+      
+    if args.input_csv_path and not os.path.isdir(args.input_csv_path):
+        print_error_and_quit(parser, f""" An CSV Directory not found.
+        [{args.input_csv_path}] is not a valid directory name for wormcat batch.""")
+
+    if not args.output_path or not is_valid_directory_name(args.output_path):
+        print_error_and_quit(parser, f""" An Output path is required with a valid name.
+        [{args.output_path}] is not valid directory path for wormcat batch.""")
 
     # if args.annotation_file is not a path to an annotation file
     # vaildate the input name and set the full path
@@ -193,14 +245,14 @@ def process_command_arguments():
         annotation_files = get_category_files(wormcat_path)
         
         if not args.annotation_file or not args.annotation_file in annotation_files:
-            print(help_statement)
-            print("Missing or incorrect annotation-file-nm.")
-            annotation_file_names = ""
-            for index, annotation_file in enumerate(sorted(annotation_files)):
-                annotation_file_names += f"\t{index+1} {annotation_file}\n"
-            print(f"Available names:\n{annotation_file_names}")
-            sys.exit(-1)
+            print_error_and_quit(parser, "Missing or incorrect annotation-file-nm. See --help for details.")
+            
         args.annotation_file = f"{wormcat_path}{os.path.sep}extdata{os.path.sep}{args.annotation_file}"
+
+    elif args.annotation_file and os.path.sep in args.annotation_file:
+        if not os.path.isfile(args.annotation_file):
+            print_error_and_quit(parser, f"""Local Annotation file not found.
+            [{args.annotation_file}] is not a valid file name for wormcat batch.""")
 
     # Support TRUE or True as input to clean temp
     # otherwise set to False
@@ -208,6 +260,14 @@ def process_command_arguments():
         args.clean_temp = True
     else:
         args.clean_temp = False
+
+    print(f"\tInput Excel     = {args.input_excel}")
+    print(f"\tInput CSV Path  = {args.input_csv_path}")
+    print(f"\tOutput Path     = {args.output_path}")
+    print(f"\tAnnotation File = {args.annotation_file}")
+    print(f"\tClean Temp      = {args.clean_temp}")
+    print("\n")
+
 
     return args
 
@@ -247,12 +307,6 @@ def main():
     output_base_dir = f"{input_data_nm}_{timestamp}"
     wormcat_out_path = f"{args.output_path}{os.path.sep}{output_base_dir}"
     create_directory(wormcat_out_path)
-
-    print(f"{args.input_excel=}")
-    print(f"{args.input_csv_path=}")
-    print(f"{args.output_path=}")
-    print(f"{args.annotation_file=}")
-    print(f"{args.clean_temp=}")
 
     # Call Wormcat on each CSV file
     process_csv_files(csv_file_path, wormcat_out_path, args.annotation_file)
