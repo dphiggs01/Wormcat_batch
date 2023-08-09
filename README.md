@@ -1,26 +1,26 @@
-# Wormcat Batch
+# WormCat Batch
 
 ### Overview
-*Wormcat Batch* is a command line tool that allows you to batch multiple
-runs of [Wormcat](http://wormcat.com) from a Microsoft Excel File or a directory path with wormcat formatted csv files.
+*WormCat Batch* is a command line tool that allows you to batch multiple
+runs of [WormCat](http://wormcat.com) from a Microsoft Excel File or a directory path with WormCat formatted csv files.
 
-**Note:** You can also run Wormcat Batch as a docker container. Find more information on running Wormcat Batch as a Docker container [here](https://hub.docker.com/repository/docker/danhumassmed/wormcat_batch/general).
+**Note:** You can also run WormCat Batch as a docker container. Find more information on running WormCat Batch as a Docker container [here](https://hub.docker.com/r/danhumassmed/wormcat_batch).
 
 ### Prerequisites
 
-*Wormcat Batch* requires Python 3.5+ and R 3.4.1+ with a Wormcat
+*WormCat Batch* requires Python 3.5+ and R 3.4.1+ with a WormCat
 package installed.
 
-If you are unsure if you have Wormcat installed, you can run
+If you are unsure if you have WormCat installed, you can run
 `find.package("wormcat")` from an R command prompt.
 
-If *Wormcat* is not installed, you can follow the directions
+If *WormCat* is not installed, you can follow the directions
 [here](https://github.com/dphiggs01/Wormcat/blob/master/README.md)
-to install Wormcat. 
+to install WormCat. 
 
-**Note:** Wormcat can be installed as an R package you;
-do NOT need to checkout the source unless you intend to modify Wormcat.
-The readme file explains how to install Wormcat as an R package.
+**Note:** WormCat can be installed as an R package you;
+do NOT need to checkout the source unless you intend to modify WormCat.
+The readme file explains how to install WormCat as an R package.
 
 
 ### Excel spreadsheet Naming Conventions
@@ -28,7 +28,7 @@ The readme file explains how to install Wormcat as an R package.
 Once you have the R package installed, you will create an Excel
 Spreadsheet with the required data for batch execution.
 
-See the file `Example/Murphy_TS.xsl` for details.
+See the file `Example/Murphy_TS.xsl` for details on formating the Excel.
 
 <img src="./Images/Sample_Input.png"  height="405" width="500"/>
 
@@ -55,7 +55,7 @@ $wormcat_cli --help
 <img src="./Images/Example_Run.png"  height="288" width="800"/>
 
 
-After execution, the Output Directory will contain all the Wormcat run data and a
+After execution, the Output Directory will contain all the WormCat run data and a
 summary Excel spreadsheet.
 
 
