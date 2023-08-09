@@ -14,8 +14,6 @@ Wormcat Batch enables the batching of multiple calls to Wormcat on your Desktop,
 
 Wormcat is an R program that provides enrichment data from a nested annotation list with broad categories in Category 1 (Cat1) and more specific categories in Cat2 and Cat3. 
 
-For example, sbp-1 is in Metabolism: lipid: transcriptional regulator. 
-
 **Wormcat** output provides:
 * scaled bubble charts with enrichment scores that meet a Bonferroni false discovery rate cut-off of 0.01 as SGV files (`rgs_fisher_cat1_apv.svg`). 
 * The download directory also includes CSV files on the data used for the graph (e.g., `rgs_fisher_cat1_apv.csv`) (Note: "apv" stand for appropriate p-value). 
@@ -69,9 +67,16 @@ You can download an Example Microsoft Excel file [here](http://www.wormcat.com/s
 
 **Note:** _When creating your Excel, please follow the naming conventions to avoid processing errors._
 
+**Excel file Naming Conventions:**
+1. The Spreadsheet Name should **ONLY** be composed of Letters, Numbers, and Underscores (_) and has an extension .xlsx, .xlt, .xls
+2. The individual Sheet Names (i.e., Tab name) within the spreadsheet should **ONLY** be composed of Letters, Numbers, and Underscores (_).
+3. Each Sheet requires a column header which **MUST** be 'Sequence ID' or 'Wormbase ID' (The column header is case sensitive.)
+
+<br>
+
 * __<full_path_to_excel>__ path on the local machine that contains the Excel file to process.
 
-```
+```bash
 docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input-excel /usr/data/Murphy_TS.xlsx --output-path /usr/data/wormcat_out
 ```
 <br>
@@ -83,7 +88,7 @@ You can download an Example Directory of CSV files [here](https://github.com/dph
 
 * __<full_path_to_csv>__ path on the local machine that contains the extracted CSV directory.
 
-```
+```bash
 docker run --rm -v <full_path_to_csv>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input-csv-path /usr/data/Murphy_TS_csv --output-path /usr/data/wormcat_out
 ```
 
@@ -96,12 +101,13 @@ You can download an Example Annotation file [here](http://www.wormcat.com/static
 
 * __<full_path_to_excel>__ path on the local machine that contains the Excel and annotation file to process.
 
-```
+```bash
 docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli --input-excel /usr/data/Murphy_TS.xlsx --annotation-file /usr/data/whole_genome_v2_nov-11-2021.csv --output-path /usr/data/wormcat_out
 ```
 
 <br>
 <br>
+
 **4. Wormcat batch can also be run as an R / RStudio container enabling the execution of arbitrary RScripts**
 
 Once the docker container is executed, full access to the Linux machine and RStudio is available at [http:/127.0.0.1:8787](http:/127.0.0.1:8787)
@@ -120,7 +126,7 @@ Once the docker container is executed, full access to the Linux machine and RStu
 <br>
 
 
-```
+```bash
 docker run --rm -p 8787:8787 -e PASSWORD=password -v <full_path_to_output_dir>:/home/rstudio/projects danhumassmed/wormcat_batch:1.0.1
 ```
 
@@ -131,7 +137,7 @@ docker run --rm -p 8787:8787 -e PASSWORD=password -v <full_path_to_output_dir>:/
 
 * See the cli_wormcat --help for a complete list of options
 
-```
+```bash
 docker run --rm danhumassmed/wormcat_batch:1.0.1 wormcat_cli --help
 ```
 
@@ -141,6 +147,6 @@ docker run --rm danhumassmed/wormcat_batch:1.0.1 wormcat_cli --help
 * This command returns the available (internal) Annotation files that wormcat can run
 * **Note:** *Add a mount point and execute any RScript*
 
-```
+```bash
 docker run --rm danhumassmed/wormcat_batch:1.0.1 R -q -e "library('wormcat');get_available_annotation_files()"
 ```

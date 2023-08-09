@@ -231,7 +231,7 @@ def process_command_arguments():
         [{args.input_excel}] is not a valid file name for wormcat batch.""")
       
     if args.input_csv_path and not os.path.isdir(args.input_csv_path):
-        print_error_and_quit(parser, f""" An CSV Directory not found.
+        print_error_and_quit(parser, f""" A CSV Directory was not found.
         [{args.input_csv_path}] is not a valid directory name for wormcat batch.""")
 
     if not args.output_path or not is_valid_directory_name(args.output_path):
