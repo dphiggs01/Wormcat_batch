@@ -2,6 +2,7 @@
 Setup for pypi releases of wormcat_batch
 """
 from setuptools import setup
+from pathlib import Path
 
 # rm -rf dist
 # python setup.py sdist
@@ -9,9 +10,16 @@ from setuptools import setup
 # twine check dist/*
 # twine upload --repository pypi dist/*
 
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(name='wormcat_batch',
-      version='1.1.5',
+      version='1.1.9',
       description='Batch processing for Wormcat data',
+      long_description_content_type="text/markdown",
+      long_description=long_description,
+
       url='https://github.com/dphiggs01/Wormcat_batch',
       author='Dan Higgins',
       author_email='daniel.higgins@yahoo.com',

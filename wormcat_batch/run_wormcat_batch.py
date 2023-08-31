@@ -214,7 +214,7 @@ def process_command_arguments():
     parser.add_argument('-a', '--annotation-file', default='whole_genome_v2_nov-11-2021.csv',
                         help='Annotation file name or path default=whole_genome_v2_nov-11-2021.csv')
     parser.add_argument('-t', '--clean-temp', default='True',
-                        help='Remove files created while processing default=False')
+                        help='Remove files created while processing default=True')
 
     parser.add_argument('-v', '--version', action='version',
                         version=f'%(prog)s v{importlib.metadata.version("wormcat_batch")}')

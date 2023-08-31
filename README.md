@@ -30,7 +30,7 @@ Spreadsheet with the required data for batch execution.
 
 See the file `Example/Murphy_TS.xsl` for details on formating the Excel.
 
-<img src="./Images/Sample_Input.png"  height="405" width="500"/>
+<img src="https://raw.githubusercontent.com/dphiggs01/Wormcat_batch/master/Images/Sample_Input.png"  height="405" width="500"/>
 
 **Note:**
 
@@ -52,7 +52,7 @@ $pip install wormcat_batch
 $wormcat_cli --help
 ```
 
-<img src="./Images/Example_Run.png"  height="288" width="800"/>
+<img src="https://raw.githubusercontent.com/dphiggs01/Wormcat_batch/master/Images/Example_Run.png"  height="288" width="800"/>
 
 
 After execution, the Output Directory will contain all the WormCat run data and a
@@ -63,7 +63,7 @@ summary Excel spreadsheet.
 ### Sample Output
 
 
-<img src="./Images/Sample_Output.png"  height="415" width="800"/>
+<img src="https://raw.githubusercontent.com/dphiggs01/Wormcat_batch/master/Images/Sample_Output.png"  height="415" width="800"/>
 
 ### Local development /test hints
 
