@@ -40,18 +40,25 @@ def process_csv_files(csv_file_path, wormcat_out_path, annotation_file):
     """
     for dir_content in os.listdir(csv_file_path):
         if dir_content.endswith(".csv"):
-            conetnt_full_path = os.path.join(csv_file_path, dir_content)
-            if os.path.isfile(conetnt_full_path):
-                with open(conetnt_full_path, 'r', encoding='utf-8') as file:
+            content_full_path = os.path.join(csv_file_path, dir_content)
+            if os.path.isfile(content_full_path):
+                header_line = None
+                first_line = None
+                with open(content_full_path, 'r', encoding='utf-8') as file:
                     header_line = file.readline().strip()
+                    first_line = file.readline().strip()
+
+                # This is a hack to check for Wormbase IDs if we see a Wormbase.ID in the first line ignoring the header
+                if 'WBGene' in first_line[:16]:
+                    header_line = "Wormbase.ID"
                 wormcat_input_type = header_line.replace(' ', '.')
-                csv_file_nm = os.path.basename(conetnt_full_path)
+                csv_file_nm = os.path.basename(content_full_path)
                 file_nm_wo_ext = csv_file_nm[:-4]  # Remove .csv from file name
                 title = file_nm_wo_ext.replace('_', ' ')
                 wormcat_output_dir = f'{wormcat_out_path}{os.path.sep}{file_nm_wo_ext}'
                 execute_r = ExecuteR()
                 execute_r.worm_cat_fun(
-                    conetnt_full_path, wormcat_output_dir, title, annotation_file, wormcat_input_type)
+                    content_full_path, wormcat_output_dir, title, annotation_file, wormcat_input_type)
                 create_sunburst(wormcat_output_dir)
     return wormcat_out_path
 

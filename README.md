@@ -74,6 +74,7 @@ summary Excel spreadsheet.
 #### Test
 * cd /Users/dan/delme #some working directory
 * wormcat_cli --input-excel ${PROJ_HOME}/Example/Murphy_TS.xlsx --output-path ./output  
+* wormcat_cli --input-csv-path ${PROJ_HOME}/Example/Murphy_TS_CSV--output-path ./output 
 
 #### Deploy
 * Advance the version number in setup.py
