@@ -15,7 +15,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(name='wormcat_batch',
-      version='1.1.10',
+      version='1.1.11',
       description='Batch processing for Wormcat data',
       long_description_content_type="text/markdown",
       long_description=long_description,

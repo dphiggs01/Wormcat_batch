@@ -48,10 +48,14 @@ def process_csv_files(csv_file_path, wormcat_out_path, annotation_file):
                     header_line = file.readline().strip()
                     first_line = file.readline().strip()
 
-                # This is a hack to check for Wormbase IDs if we see a Wormbase.ID in the first line ignoring the header
-                if 'WBGene' in first_line[:16]:
-                    header_line = "Wormbase.ID"
+                # Check if we have a good header line if not check first line to determine if we have wormbase ids
                 wormcat_input_type = header_line.replace(' ', '.')
+                if wormcat_input_type not in ['Wormbase.ID', 'Sequence.ID']:
+                    if 'WBGene' in first_line[:16]:
+                        wormcat_input_type = "Wormbase.ID"
+                    else:
+                        wormcat_input_type = "Sequence.ID"
+
                 csv_file_nm = os.path.basename(content_full_path)
                 file_nm_wo_ext = csv_file_nm[:-4]  # Remove .csv from file name
                 title = file_nm_wo_ext.replace('_', ' ')
