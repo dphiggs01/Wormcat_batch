@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# Simplify the execution of WormCat Batch by accepting a path to the CSV files and deriving the output directory from the path
+# Note: Place this script in the executable PATH and ensure Docker is installed and running
+
+# This script simplifies the execution of WormCat Batch by allowing user to provide a single path to the CSV files. 
+# the script automatically determines the output directory based on that path.
 
 if [ "$#"=="1" ]; then
-	mount_dir=$(dirname "$1")
-   if [ "$mount_dir"=="." ]; then
-      mount_dir=$(readlink -f $mount_dir )
-   fi
-	input_csv_dir=$(basename "$1")
+   full_path=$(realpath "$1")
+	mount_dir=$(dirname "$full_path")
+ 	input_csv_dir=$(basename "$full_path")
 else
    echo "Usage: wormcat_batch.sh <full-path-to-csv-directory>"
    exit 1

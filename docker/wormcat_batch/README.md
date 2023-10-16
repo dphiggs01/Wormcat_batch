@@ -66,7 +66,7 @@ The provided Docker image is compatible with [Singularity](https://sylabs.io/doc
 
 <br>
 
-**1. With an Excel file as Input**
+**1. Execution with an Excel file as Input**
 
 You can download an Example Microsoft Excel file [Murphy_TS.xlsx](http://www.wormcat.com/static/download/Murphy_TS.xlsx) to confirm the required format. 
 
@@ -88,7 +88,7 @@ docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0
 <br>
 <br>
 
-**2. With a directory path to CSV file with Worm Base or Sequence Ids as Input**
+**2. Execution with a directory path to CSV file with Worm Base or Sequence Ids as Input**
 
 You can download an Example Directory of CSV files [Murphy_TS_csv.zip](https://github.com/dphiggs01/Wormcat_batch/raw/master/docker/wormcat_batch/Murphy_TS_csv.zip) to confirm the required format. 
 
@@ -104,7 +104,7 @@ docker run --rm -v <full_path_to_csv>:/usr/data danhumassmed/wormcat_batch:1.0.1
 <br>
 <br>
 
-**3. With either of the above as Input and a Path to an externally prepared Annotation file**
+**3. Execution with either of the above as Input and a Path to an externally prepared Annotation file**
 
 You can download an Example Annotation file [whole_genome_v2_nov-11-2021.csv](http://www.wormcat.com/static/download/whole_genome_v2_nov-11-2021.csv) to confirm the required format. 
 
@@ -168,6 +168,49 @@ docker run --rm danhumassmed/wormcat_batch:1.0.1 R -q -e "library('wormcat');get
 <br>
 <br>
 
+**Convenience Script for execution with CSV files**
+
+1. Copy the script below to a file named `wormcat_batch_csv.sh`
+2. Make the script executable `chmod +x wormcat_batch_csv.sh`
+
+```bash
+#!/bin/bash
+
+# Note: Place this script in the executable PATH and ensure Docker is installed and running
+
+# This script simplifies the execution of WormCat Batch by allowing user to provide a single path to the CSV files. 
+# the script automatically determines the output directory based on that path.
+
+if [ "$#"=="1" ]; then
+   full_path=$(realpath "$1")
+   mount_dir=$(dirname "$full_path")
+   input_csv_dir=$(basename "$full_path")
+else
+   echo "Usage: wormcat_batch.sh <full-path-to-csv-directory>"
+   exit 1
+fi
+
+
+if [ ! -d "$mount_dir" ]; then
+    echo "The mount directory does not exists: $mount_dir"
+    exit 1
+fi
+
+if [ ! -d "${mount_dir}/${input_csv_dir}" ]; then
+    echo "The input_csv directory does exists: $input_csv_dir"
+    exit 1
+fi
+
+
+output_dir="wormcat_out"
+
+echo "Running wormcat_batch at ${mount_dir} and cvs path ${input_csv_dir}"
+docker run --rm -v ${mount_dir}:/usr/data danhumassmed/wormcat_batch:1.0.1 wormcat_cli \
+      --input-csv-path /usr/data/${input_csv_dir} \
+      --output-path /usr/data/${output_dir} \
+      --clean-temp False
+echo "The results can be found here:  ${mount_dir}/${output_dir}"
+```
 
 # <a name="citation"></a>Citation
 
@@ -178,3 +221,6 @@ docker run --rm danhumassmed/wormcat_batch:1.0.1 R -q -e "library('wormcat');get
 > Amy D Holdorf, Daniel P Higgins, Anne C. Hart, Peter R Boag, Gregory Pazour, Albertha J. M. Walhout, Amy Karol Walker
 >
 > [GENETICS February 1, 2020 vol. 214 no. 2 279-294;](https://academic.oup.com/genetics/article/214/2/279/5930455?login=false)
+
+
+
