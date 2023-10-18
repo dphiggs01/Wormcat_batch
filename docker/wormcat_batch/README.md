@@ -170,15 +170,16 @@ docker run --rm danhumassmed/wormcat_batch:1.0.1 R -q -e "library('wormcat');get
 
 **Convenience Script for execution with CSV files**
 
-You can download the script [wormcat_batch_csv.sh](https://github.com/dphiggs01/Wormcat_batch/raw/master/docker/wormcat_batch/wormcat_batch_csv.sh) to simplify the exection of wormcat batch with CSV files. 
+1. You can download the script [wormcat_batch_csv.sh](https://github.com/dphiggs01/Wormcat_batch/raw/master/docker/wormcat_batch/wormcat_batch_csv.sh) to simplify the execution of wormcat batch with CSV files. 
+2. After download, change permission on the file to make it executable `$chmod +x wormcat_batch_csv.sh`
 
 ```bash
 #!/bin/bash
 
 # Note: Place this script in the executable PATH and ensure Docker is installed and running
 
-# This script simplifies the execution of WormCat Batch by allowing user to provide a single path to the CSV files. 
-# the script automatically determines the output directory based on that path.
+# This script simplifies the execution of WormCat Batch by allowing the user to provide a single path to the CSV files. 
+# The script automatically determines the output directory based on that path.
 
 if [ "$#"=="1" ]; then
    full_path=$(realpath "$1")
