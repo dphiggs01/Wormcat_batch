@@ -214,7 +214,7 @@ echo "The results can be found here:  ${mount_dir}/${output_dir}"
 
 Example usage
 
-Note: Replace _DIR_W_CSV_FILES_ with actaul directory
+Note: Replace _DIR_W_CSV_FILES_ with actual directory
 
 ```bash
 wormcat_batch_csv.sh ./DIR_W_CSV_FILES
