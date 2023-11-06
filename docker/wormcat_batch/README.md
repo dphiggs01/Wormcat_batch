@@ -119,31 +119,6 @@ docker run --rm -v <full_path_to_excel>:/usr/data danhumassmed/wormcat_batch:1.0
 <br>
 <br>
 
-**4. WormCat batch can also be run as an R / RStudio container enabling the execution of arbitrary RScripts**
-
-Once the docker container is executed, full access to the Linux machine and RStudio is available at [http:/127.0.0.1:8787](http:/127.0.0.1:8787)
-
-<br>
-
-| Login    | Credentials |
-|----------|-------------|
-| User:    | rstudio     |
-| Passord: | password    |
-
-<br>
-
-* __<full_path_to_output_dir>__ path on the local machine to place outputs from R / RStrudio execution.
-
-<br>
-
-
-```bash
-docker run --rm -p 8787:8787 -e PASSWORD=password -v <full_path_to_output_dir>:/home/rstudio/projects danhumassmed/wormcat_batch:1.0.1
-```
-
-<br>
-<br>
-
 **Additional Options**
 
 * See `cli_wormcat --help` for a complete list of avaiable commandline options

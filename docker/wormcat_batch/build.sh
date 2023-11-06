@@ -14,6 +14,7 @@ echo
 #docker build -t danhumassmed/wormcat_batch:1.0.1 .
 echo docker buildx prune
 echo docker buildx build --platform linux/amd64,linux/arm64 --push -t ${USER}/${TAG}:${VERSION} .
+echo docker buildx build --platform linux/amd64 --push -t ${USER}/${TAG}:${VERSION} .
 echo "********************************************"
 echo
 echo docker run -it ${USER}/${TAG}:${VERSION} /bin/bash

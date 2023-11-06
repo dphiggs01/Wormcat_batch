@@ -33,7 +33,7 @@ COPY --chown=rstudio:rstudio ./examples /home/rstudio/examples
 
 RUN pip3 install wormcat_batch xlsxwriter openpyxl pandas --no-input
 
-# Create user and setup permissions on /etc/sudoers
-RUN echo "rstudio ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers && \
-    chmod 0440 /etc/sudoers && \
-    chmod g+w /etc/passwd 
+# # Create user and setup permissions on /etc/sudoers
+# RUN echo "rstudio ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers && \
+#     chmod 0440 /etc/sudoers && \
+#     chmod g+w /etc/passwd 
