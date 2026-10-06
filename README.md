@@ -1,3 +1,11 @@
+# We are no longer maintaining this codebase
+
+A new version of WormCat can be found at:
+
+[WormCat3](https://github.com/DanHUMassMed/wormcat3)
+
+-----
+
 # WormCat Batch
 
 ### Overview
